@@ -34,8 +34,10 @@ const getCode = async () => {
   }
 }
 
-// 页面加载时获取验证码
 onMounted(() => {
+  // 清除token
+  tokenStore.removeToken()
+  // 页面加载时获取验证码
   getCode()
 })
 

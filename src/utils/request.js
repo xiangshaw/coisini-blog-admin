@@ -8,6 +8,7 @@ const baseURL = '/coisiniBlogApi';
 const instance = axios.create({baseURL})
 
 import {useTokenStore} from "@/stores/token";
+import router from "@/router";
 // 添加请求拦截器
 instance.interceptors.request.use(
     (config) => {
@@ -15,7 +16,7 @@ instance.interceptors.request.use(
         // 获取token
         const tokenStore = useTokenStore();
         // 判断请求是否添加token
-        if (tokenStore.token){
+        if (tokenStore.token) {
             config.headers.Authorization = tokenStore.token;
         }
         return config;
@@ -34,12 +35,24 @@ instance.interceptors.response.use(
             return result.data;
         }
         // 状态码不是200
-        ElMessage.error(result.data.message?result.data.message:'请求失败')
+        ElMessage.error(result.data.message ? result.data.message : '请求失败')
         // 异步状态转化成失败的状态
         return Promise.reject(result.data);
     },
     err => {
-        ElMessage.error(err.message);
+        // 未登录响应状态码401，给出对应的提示，并跳转到登录页
+        if (err.response.status === 401 || err.response.status === 500) {
+            ElMessage.error('登录已失效，请先登录');
+            // 跳转到登录页
+            // 获取token状态
+            const tokenStore = useTokenStore();
+            // 清除token
+            tokenStore.removeToken();
+            // 跳转到登录页
+           router.push('/login')
+        }else {
+            ElMessage.error(err.message);
+        }
         // 异步的状态转化成失败的状态
         return Promise.reject(err);
     }
