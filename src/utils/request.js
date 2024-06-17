@@ -40,8 +40,8 @@ instance.interceptors.response.use(
         return Promise.reject(result.data);
     },
     err => {
-        // 未登录响应状态码401，给出对应的提示，并跳转到登录页
-        if (err.response.status === 401 || err.response.status === 500) {
+        // 未登录响应状态码401，未认证状态1，给出对应的提示，并跳转到登录页
+        if (err.response.status === 401 || err.response.status === 1) {
             ElMessage.error('登录已失效，请先登录');
             // 跳转到登录页
             // 获取token状态

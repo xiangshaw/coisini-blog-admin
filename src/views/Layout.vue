@@ -19,7 +19,7 @@ import avatar from '@/assets/default.png'
     <el-aside width="200px">
       <div class="el-aside__logo"></div>
       <el-menu active-text-color="#ffd04b" background-color="#232323" text-color="#fff"
-               router>
+               :default-active="$route.path" router>
         <el-menu-item index="/article/category">
           <el-icon>
             <Management/>
