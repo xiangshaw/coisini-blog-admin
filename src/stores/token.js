@@ -42,4 +42,7 @@ export const useTokenStore
         getToken,
         removeToken
     }
+}, {
+    // token持久化配置
+    persist: true,
 })

@@ -7,10 +7,17 @@ import {ElMessage} from "element-plus";
 const baseURL = '/coisiniBlogApi';
 const instance = axios.create({baseURL})
 
+import {useTokenStore} from "@/stores/token";
 // 添加请求拦截器
 instance.interceptors.request.use(
-    config => {
+    (config) => {
         // 在发送请求之前做些什么
+        // 获取token
+        const tokenStore = useTokenStore();
+        // 判断请求是否添加token
+        if (tokenStore.token){
+            config.headers.Authorization = tokenStore.token;
+        }
         return config;
     },
     error => {

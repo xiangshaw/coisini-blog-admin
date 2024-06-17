@@ -6,15 +6,7 @@ import {
 import { ref } from 'vue'
 
 // 初始化分类数据
-const categorys = ref([
-  {
-    "id": 1,
-    "categoryName": "科技",
-    "categoryAlias": "kj",
-    "createTime": "2024-06-17 13:14:20",
-    "updateTime": "2024-06-17 13:14:20"
-  },
-])
+const categorys = ref([])
 
 // 初始化总条数
 const total = ref(0)
@@ -90,9 +82,11 @@ const handleSizeChange = (size) => {
     </el-table>
   <!--分页-->
     <el-pagination
-        layout="prev, pager, next"
+        layout="total, sizes, prev, pager, next, jumper"
         :total="total"
         :page-size="categorySearchObj.limit"
+        style="padding: 30px 0; text-align: center;"
+        :page-sizes="[5, 10, 50, 100]"
         :current-page="categorySearchObj.current"
         @current-change="handlePageChange"
         @size-change="handleSizeChange"

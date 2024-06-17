@@ -247,6 +247,11 @@
   resolved "https://registry.npmmirror.com/@types/estree/-/estree-1.0.5.tgz"
   integrity sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==
 
+"@types/js-cookie@^3.0.1":
+  version "3.0.6"
+  resolved "https://registry.npmmirror.com/@types/js-cookie/-/js-cookie-3.0.6.tgz#a04ca19e877687bd449f5ad37d33b104b71fdf95"
+  integrity sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==
+
 "@types/lodash-es@^4.17.6":
   version "4.17.10"
   resolved "https://registry.npmmirror.com/@types/lodash-es/-/lodash-es-4.17.10.tgz"
@@ -643,7 +648,15 @@ picomatch@^2.0.4, picomatch@^2.2.1:
   resolved "https://registry.npmmirror.com/picomatch/-/picomatch-2.3.1.tgz"
   integrity sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==
 
-pinia@^2.1.7:
+pinia-persistedstate-plugin@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.npmmirror.com/pinia-persistedstate-plugin/-/pinia-persistedstate-plugin-0.1.0.tgz#37f0c8a0e93e7ff529d8867e536365274b4bb8d4"
+  integrity sha512-ToKR/EJzhhXElQ5YL8PVVY4CqLJjywxszAJjOCgprjmIVkTrPBsEOY4b/ATOzHQc1TtuaJs/3MJuoCpA3pv8Ew==
+  dependencies:
+    "@types/js-cookie" "^3.0.1"
+    pinia "^2.0.12"
+
+pinia@^2.0.12, pinia@^2.1.7:
   version "2.1.7"
   resolved "https://registry.npmmirror.com/pinia/-/pinia-2.1.7.tgz#4cf5420d9324ca00b7b4984d3fbf693222115bbc"
   integrity sha512-+C2AHFtcFqjPih0zpYuvof37SFxMQ7OEG2zV9jRI12i9BOy3YQVAHwdKtyyc8pDcDyIc33WCIsZaCFWU7WWxGQ==
