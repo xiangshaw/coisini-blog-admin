@@ -4,7 +4,7 @@ import request from '@/utils/request'
 // 获取验证码接口函数
 export const getCodeService = (phone) => {
     return request({
-        url: '/api/v1/auth/code',
+        url: '/api/v1/auth/captcha',
         method: 'get',
     })
 }

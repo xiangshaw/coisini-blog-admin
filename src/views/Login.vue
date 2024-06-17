@@ -24,7 +24,7 @@ const getCode = async () => {
   try {
     const response = await getCodeService()
     if (response.code === 200) {
-      captchaSrc.value = 'data:image/png;base64,' + response.data.code
+      captchaSrc.value = 'data:image/png;base64,' + response.data.captcha
       registerData.value.uuid = response.data.uuid
     } else {
       ElMessage.error(response.message)
@@ -73,11 +73,24 @@ const register = async () => {
   let result = await userRegisterService(registerData.value)
   ElMessage.success(result.message ? result.message : '注册成功')
 }
+
+// 导入路由
+import { useRouter } from "vue-router"
+// 导入token状态
+import { useTokenStore } from "@/stores/token"
+// 获取token状态
+const tokenStore = useTokenStore();
 // 登录功能
+const router = useRouter();
 const login = async () => {
+  // 登录
   let result = await userLoginService(registerData.value)
+  // 提示信息
   ElMessage.success(result.message ? result.message : '登录成功')
-  this.$router.push('/')
+  // 设置token
+  tokenStore.setToken(result.data.token)
+  // 跳转首页
+  await router.push('/')
 }
 
 // 清空表单
