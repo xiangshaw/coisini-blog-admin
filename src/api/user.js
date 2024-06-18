@@ -43,3 +43,12 @@ export const userInfoUpdateService = (updateData) => {
         data: updateData
     })
 }
+
+// 用户修改头像接口函数
+export const userAvatarUpdateService = (avatar) => {
+    return request({
+        url: '/api/v1/user/avatar',
+        method: 'patch',
+        data: avatar
+    })
+}

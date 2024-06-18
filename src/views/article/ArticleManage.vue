@@ -1,146 +1,3 @@
-<template>
-  <el-card class="page-container">
-    <template #header>
-      <div class="header">
-        <span>文章管理</span>
-        <div class="extra">
-          <el-button type="primary" @click="clearDrawer">添加文章</el-button>
-        </div>
-      </div>
-    </template>
-
-    <!-- 搜索表单 -->
-    <el-form inline>
-      <el-form-item label="文章分类：">
-        <el-select placeholder="请选择" v-model="articleSearchObj.categoryId" style="width: 100px">
-          <el-option
-              v-for="c in articleCategory"
-              :key="c.id"
-              :label="c.categoryName"
-              :value="c.id">
-          </el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="发布状态：">
-        <el-select placeholder="请选择" v-model="articleSearchObj.state" style="width: 100px">
-          <el-option label="已发布" value="1"></el-option>
-          <el-option label="草稿" value="0"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="关键字搜索：">
-        <el-input
-            v-model="articleSearchObj.keyword"
-            :prefix-icon="Search"
-            placeholder="请输入关键字搜索"
-            @keyup.enter.native="getArticleList"
-            style="width: 200px"
-        />
-      </el-form-item>
-      <el-col>
-        <el-form-item label="操作时间">
-          <el-date-picker
-              v-model="articleCreateTimes"
-              type="datetimerange"
-              range-separator="至"
-              start-placeholder="开始时间"
-              end-placeholder="结束时间"
-              format="YYYY-MM-DD HH:mm:ss"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="getArticleList">搜索</el-button>
-          <el-button type="info" @click="resetArticleSearch">重置</el-button>
-        </el-form-item>
-      </el-col>
-    </el-form>
-
-    <!-- 文章列表 -->
-    <el-table
-        v-loading="loading"
-        element-loading-text="Loading..."
-        :element-loading-svg="svg"
-        class="custom-loading-svg"
-        element-loading-svg-view-box="-10, -10, 50, 50"
-        :data="articles" style="width: 100%">
-      <el-table-column label="文章标题" width="150" prop="title"></el-table-column>
-      <el-table-column label="分类" prop="categoryId"></el-table-column>
-      <el-table-column label="发表时间" prop="createTime"></el-table-column>
-      <el-table-column label="状态" prop="state"></el-table-column>
-      <el-table-column label="操作" width="100">
-        <template #default="{ row }">
-          <el-button :icon="Edit" circle plain type="primary" @click="updateArticleEcho(row)"></el-button>
-          <el-button :icon="Delete" circle plain type="danger" @click="confirmDeleteArticle(row)"></el-button>
-        </template>
-      </el-table-column>
-      <template #empty>
-        <el-empty description="没有数据"/>
-      </template>
-    </el-table>
-
-    <!-- 分页 -->
-    <el-pagination
-        layout="jumper, total, sizes, prev, pager, next"
-        :current-page="articleSearchObj.current"
-        :page-size="articleSearchObj.limit"
-        :page-sizes="[5, 10, 50, 100]"
-        background
-        :total="total"
-        @current-change="handlePageChange"
-        @size-change="handleSizeChange"
-        style="margin-top: 20px; justify-content: flex-end"
-    />
-    <!-- 抽屉 -->
-    <el-drawer v-model="articleVisibleDrawer" title="添加文章" direction="rtl" size="50%">
-      <!-- 添加文章表单 -->
-      <el-form :model="articleModel" label-width="100px">
-        <el-form-item label="文章标题">
-          <el-input v-model="articleModel.title" placeholder="请输入标题"></el-input>
-        </el-form-item>
-        <el-form-item label="文章分类">
-          <el-select placeholder="请选择" v-model="articleModel.categoryId">
-            <el-option v-for="c in articleCategory" :key="c.id" :label="c.categoryName" :value="c.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <!--
-           auto-upload:是否自动上传
-           action: 服务器接口路径
-           name: 上传的文件字段名
-           headers: 设置上传的请求头
-           on-success: 上传成功的回调函数
-         -->
-        <el-form-item label="文章封面">
-          <el-upload class="avatar-uploader"
-                     :show-file-list="false"
-                     action="/coisiniBlogApi/api/v1/file/admin/upload"
-                     name="file"
-                     :headers="{'Authorization':tokenStore.token}"
-                     :on-success=uploadSuccess
-          >
-            <img v-if="articleModel.coverImg" :src="articleModel.coverImg" class="avatar"/>
-            <el-icon v-else class="avatar-uploader-icon">
-              <Plus/>
-            </el-icon>
-          </el-upload>
-        </el-form-item>
-        <el-form-item label="文章内容">
-          <div class="editor">
-            <quill-editor
-                theme="snow"
-                v-model:content="articleModel.content"
-                contentType="html">
-            </quill-editor>
-          </div>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="addArticle(1)">发布</el-button>
-          <el-button type="info" @click="addArticle(0)">草稿</el-button>
-        </el-form-item>
-      </el-form>
-    </el-drawer>
-  </el-card>
-</template>
-
 <script setup>
 import {
   Edit,
@@ -387,6 +244,149 @@ const confirmDeleteArticle = (row) => {
       })
 }
 </script>
+
+<template>
+  <el-card class="page-container">
+    <template #header>
+      <div class="header">
+        <span>文章管理</span>
+        <div class="extra">
+          <el-button type="primary" @click="clearDrawer">添加文章</el-button>
+        </div>
+      </div>
+    </template>
+
+    <!-- 搜索表单 -->
+    <el-form inline>
+      <el-form-item label="文章分类：">
+        <el-select placeholder="请选择" v-model="articleSearchObj.categoryId" style="width: 100px">
+          <el-option
+              v-for="c in articleCategory"
+              :key="c.id"
+              :label="c.categoryName"
+              :value="c.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="发布状态：">
+        <el-select placeholder="请选择" v-model="articleSearchObj.state" style="width: 100px">
+          <el-option label="已发布" value="1"></el-option>
+          <el-option label="草稿" value="0"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="关键字搜索：">
+        <el-input
+            v-model="articleSearchObj.keyword"
+            :prefix-icon="Search"
+            placeholder="请输入关键字搜索"
+            @keyup.enter.native="getArticleList"
+            style="width: 200px"
+        />
+      </el-form-item>
+      <el-col>
+        <el-form-item label="操作时间">
+          <el-date-picker
+              v-model="articleCreateTimes"
+              type="datetimerange"
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              format="YYYY-MM-DD HH:mm:ss"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="getArticleList">搜索</el-button>
+          <el-button type="info" @click="resetArticleSearch">重置</el-button>
+        </el-form-item>
+      </el-col>
+    </el-form>
+
+    <!-- 文章列表 -->
+    <el-table
+        v-loading="loading"
+        element-loading-text="Loading..."
+        :element-loading-svg="svg"
+        class="custom-loading-svg"
+        element-loading-svg-view-box="-10, -10, 50, 50"
+        :data="articles" style="width: 100%">
+      <el-table-column label="文章标题" width="150" prop="title"></el-table-column>
+      <el-table-column label="分类" prop="categoryId"></el-table-column>
+      <el-table-column label="发表时间" prop="createTime"></el-table-column>
+      <el-table-column label="状态" prop="state"></el-table-column>
+      <el-table-column label="操作" width="100">
+        <template #default="{ row }">
+          <el-button :icon="Edit" circle plain type="primary" @click="updateArticleEcho(row)"></el-button>
+          <el-button :icon="Delete" circle plain type="danger" @click="confirmDeleteArticle(row)"></el-button>
+        </template>
+      </el-table-column>
+      <template #empty>
+        <el-empty description="没有数据"/>
+      </template>
+    </el-table>
+
+    <!-- 分页 -->
+    <el-pagination
+        layout="jumper, total, sizes, prev, pager, next"
+        :current-page="articleSearchObj.current"
+        :page-size="articleSearchObj.limit"
+        :page-sizes="[5, 10, 50, 100]"
+        background
+        :total="total"
+        @current-change="handlePageChange"
+        @size-change="handleSizeChange"
+        style="margin-top: 20px; justify-content: flex-end"
+    />
+    <!-- 抽屉 -->
+    <el-drawer v-model="articleVisibleDrawer" title="添加文章" direction="rtl" size="50%">
+      <!-- 添加文章表单 -->
+      <el-form :model="articleModel" label-width="100px">
+        <el-form-item label="文章标题">
+          <el-input v-model="articleModel.title" placeholder="请输入标题"></el-input>
+        </el-form-item>
+        <el-form-item label="文章分类">
+          <el-select placeholder="请选择" v-model="articleModel.categoryId">
+            <el-option v-for="c in articleCategory" :key="c.id" :label="c.categoryName" :value="c.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <!--
+           auto-upload:是否自动上传
+           action: 服务器接口路径
+           name: 上传的文件字段名
+           headers: 设置上传的请求头
+           on-success: 上传成功的回调函数
+         -->
+        <el-form-item label="文章封面">
+          <el-upload class="avatar-uploader"
+                     :show-file-list="false"
+                     action="/coisiniBlogApi/api/v1/file/admin/upload"
+                     name="file"
+                     :headers="{'Authorization':tokenStore.token}"
+                     :on-success=uploadSuccess
+          >
+            <img v-if="articleModel.coverImg" :src="articleModel.coverImg" class="avatar"/>
+            <el-icon v-else class="avatar-uploader-icon">
+              <Plus/>
+            </el-icon>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="文章内容">
+          <div class="editor">
+            <quill-editor
+                theme="snow"
+                v-model:content="articleModel.content"
+                contentType="html">
+            </quill-editor>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="addArticle(1)">发布</el-button>
+          <el-button type="info" @click="addArticle(0)">草稿</el-button>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
+  </el-card>
+</template>
 
 <style lang="scss" scoped>
 .page-container {
