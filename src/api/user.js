@@ -30,7 +30,16 @@ export const userLoginService = (loginData) => {
 // 获取用户信息接口函数
 export const userInfoService = () => {
     return request({
-        url: '/api/v1/auth/userInfo',
+        url: '/api/v1/user/info',
         method: 'get',
+    })
+}
+
+// 修改用户信息接口函数
+export const userInfoUpdateService = (updateData) => {
+    return request({
+        url: '/api/v1/user/update',
+        method: 'put',
+        data: updateData
     })
 }
