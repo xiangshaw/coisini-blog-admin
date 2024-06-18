@@ -64,3 +64,12 @@ export const articleListService = (articleSearchObj) => {
         params: articleSearchObj
     })
 }
+
+// 添加文章
+export const articleAddService = (articleModel) => {
+    return request({
+        url: '/api/v1/article/add',
+        method: 'post',
+        data: articleModel
+    })
+}

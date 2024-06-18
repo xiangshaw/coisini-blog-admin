@@ -21,22 +21,21 @@
           </el-option>
         </el-select>
       </el-form-item>
-
       <el-form-item label="发布状态：">
         <el-select placeholder="请选择" v-model="articleSearchObj.state" style="width: 100px">
           <el-option label="已发布" value="1"></el-option>
           <el-option label="草稿" value="0"></el-option>
         </el-select>
       </el-form-item>
-
-      <el-input
-          v-model="articleSearchObj.keyword"
-          :prefix-icon="Search"
-          placeholder="请输入搜索关键字"
-          @keyup.enter.native="getArticleList"
-          style="width: 200px"
-      />
-
+      <el-form-item label="关键字搜索：">
+        <el-input
+            v-model="articleSearchObj.keyword"
+            :prefix-icon="Search"
+            placeholder="请输入关键字搜索"
+            @keyup.enter.native="getArticleList"
+            style="width: 200px"
+        />
+      </el-form-item>
       <el-col>
         <el-form-item label="操作时间">
           <el-date-picker
@@ -48,12 +47,11 @@
               format="YYYY-MM-DD HH:mm:ss"
           />
         </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="getArticleList">搜索</el-button>
+          <el-button type="info" @click="resetArticleSearch">重置</el-button>
+        </el-form-item>
       </el-col>
-
-      <el-form-item>
-        <el-button type="primary" @click="getArticleList">搜索</el-button>
-        <el-button type="info" @click="resetArticleSearch">重置</el-button>
-      </el-form-item>
     </el-form>
 
     <!-- 文章列表 -->
@@ -242,6 +240,7 @@ getArticleList();
     justify-content: space-around;
     align-items: stretch;
   }
+
   .page-container .block {
     padding: 30px 0;
     text-align: center;
