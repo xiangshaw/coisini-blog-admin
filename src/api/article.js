@@ -10,6 +10,14 @@ export const articleCategoryListService = (categorySearchObj) => {
     })
 }
 
+// 获取文章分类
+export const articleCategoryGetService = () => {
+    return request({
+        url: '/api/v1/category/articleList',
+        method: 'get',
+    })
+}
+
 // 新增文章分类
 export const articleCategoryAddService = (categoryModel) => {
     return request({
@@ -45,5 +53,14 @@ export const articleCategoryBatchDeleteService = (ids) => {
         url: '/api/v1/category/deleteByIds',
         method: 'delete',
         data: ids
+    })
+}
+
+// 文章列表查询
+export const articleListService = (articleSearchObj) => {
+    return request({
+        url: '/api/v1/article/list',
+        method: 'get',
+        params: articleSearchObj
     })
 }

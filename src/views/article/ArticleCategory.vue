@@ -1,8 +1,85 @@
+<template>
+  <el-card class="page-container">
+    <template #header>
+      <div class="header">
+        <span>文章分类</span>
+        <div class="extra">
+          <!--搜索-->
+          <el-input
+              v-model="categorySearchObj.keyword"
+              :prefix-icon="Search"
+              placeholder="请输入搜索关键字"
+              @keyup.enter.native="getAllCategory"
+              style="width: 200px; margin-right: 10px;"
+          />
+          <el-button type="primary" @click="getAllCategory">搜索</el-button>
+          <el-button type="info" @click="resetSearch">重置</el-button>
+          <el-button type="warning" @click="title='添加分类';dialogVisible = true;clearCategoryModel()">添加分类
+          </el-button>
+          <el-button type="danger" @click="batchDelete" :disabled="selectedCategories.length === 0">批量删除</el-button>
+        </div>
+      </div>
+    </template>
+    <!--分类列表-->
+    <el-table v-loading="loading"
+              element-loading-text="Loading..."
+              :element-loading-svg="svg"
+              class="custom-loading-svg"
+              element-loading-svg-view-box="-10, -10, 50, 50"
+              :data="categorys"
+              style="width: 100%"
+              @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55"></el-table-column>
+      <el-table-column label="序号" width="100" type="index"></el-table-column>
+      <el-table-column label="分类名称" prop="categoryName"></el-table-column>
+      <el-table-column label="分类别名" prop="categoryAlias"></el-table-column>
+      <el-table-column label="操作" width="100">
+        <template #default="{ row }">
+          <el-button :icon="Edit" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
+          <el-button :icon="Delete" circle plain type="danger" @click="deleteCategory(row)"></el-button>
+        </template>
+      </el-table-column>
+      <template #empty>
+        <el-empty description="没有数据"/>
+      </template>
+    </el-table>
+    <!--分页-->
+    <el-pagination
+        layout="jumper, total, sizes, prev, pager, next"
+        :current-page="categorySearchObj.current"
+        :page-size="categorySearchObj.limit"
+        :page-sizes="[5, 10, 50, 100]"
+        background
+        :total="total"
+        @current-change="handlePageChange"
+        @size-change="handleSizeChange"
+        style="margin-top: 20px;  justify-content: flex-end"
+    />
+    <!-- 添加分类弹窗 -->
+    <el-dialog v-model="dialogVisible" :title="title" width="30%" @close="clearCategoryModel">
+      <el-form ref="formRef" :model="categoryModel" :rules="rules" label-width="100px" style="padding-right: 30px">
+        <el-form-item label="分类名称" prop="categoryName">
+          <el-input v-model="categoryModel.categoryName" minlength="1" maxlength="10"></el-input>
+        </el-form-item>
+        <el-form-item label="分类别名" prop="categoryAlias">
+          <el-input v-model="categoryModel.categoryAlias" minlength="1" maxlength="15"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+            <el-button @click="dialogVisible = false;clearCategoryModel()">取消</el-button>
+            <el-button type="primary" @click="title==='添加分类'? addCategory():updateCategory()"> 确认 </el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </el-card>
+</template>
+
 <script setup>
 import {
   Edit,
   Delete,
-  Search, Lock
+  Search
 } from '@element-plus/icons-vue'
 import {ref} from 'vue'
 
@@ -218,80 +295,6 @@ const batchDelete = async () => {
 
 
 </script>
-<template>
-  <el-card class="page-container">
-    <template #header>
-      <div class="header">
-        <span>文章分类</span>
-        <div class="extra">
-          <!--搜索-->
-          <el-input
-              v-model="categorySearchObj.keyword"
-              :prefix-icon="Search"
-              placeholder="请输入搜索关键字"
-              @keyup.enter.native="getAllCategory"
-              style="width: 200px; margin-right: 10px;"
-          />
-          <el-button type="primary" @click="getAllCategory">搜索</el-button>
-          <el-button type="info" @click="resetSearch">重置</el-button>
-          <el-button type="warning" @click="title='添加分类';dialogVisible = true;clearCategoryModel()">添加分类
-          </el-button>
-          <el-button type="danger" @click="batchDelete" :disabled="selectedCategories.length === 0">批量删除</el-button>
-        </div>
-      </div>
-    </template>
-    <el-table v-loading="loading"
-              element-loading-text="Loading..."
-              :element-loading-svg="svg"
-              class="custom-loading-svg"
-              element-loading-svg-view-box="-10, -10, 50, 50"
-              :data="categorys"
-              style="width: 100%"
-              @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55"></el-table-column>
-      <el-table-column label="序号" width="100" type="index"></el-table-column>
-      <el-table-column label="分类名称" prop="categoryName"></el-table-column>
-      <el-table-column label="分类别名" prop="categoryAlias"></el-table-column>
-      <el-table-column label="操作" width="100">
-        <template #default="{ row }">
-          <el-button :icon="Edit" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
-          <el-button :icon="Delete" circle plain type="danger" @click="deleteCategory(row)"></el-button>
-        </template>
-      </el-table-column>
-      <template #empty>
-        <el-empty description="没有数据"/>
-      </template>
-    </el-table>
-    <!--分页-->
-    <el-pagination
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        :page-size="categorySearchObj.limit"
-        style="padding: 30px 0; text-align: center;"
-        :page-sizes="[5, 10, 50, 100]"
-        :current-page="categorySearchObj.current"
-        @current-change="handlePageChange"
-        @size-change="handleSizeChange"
-    />
-    <!-- 添加分类弹窗 -->
-    <el-dialog v-model="dialogVisible" :title="title" width="30%" @close="clearCategoryModel">
-      <el-form ref="formRef" :model="categoryModel" :rules="rules" label-width="100px" style="padding-right: 30px">
-        <el-form-item label="分类名称" prop="categoryName">
-          <el-input v-model="categoryModel.categoryName" minlength="1" maxlength="10"></el-input>
-        </el-form-item>
-        <el-form-item label="分类别名" prop="categoryAlias">
-          <el-input v-model="categoryModel.categoryAlias" minlength="1" maxlength="15"></el-input>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-            <el-button @click="dialogVisible = false;clearCategoryModel()">取消</el-button>
-            <el-button type="primary" @click="title==='添加分类'? addCategory():updateCategory()"> 确认 </el-button>
-        </span>
-      </template>
-    </el-dialog>
-  </el-card>
-</template>
 
 <style lang="scss" scoped>
 .page-container {
