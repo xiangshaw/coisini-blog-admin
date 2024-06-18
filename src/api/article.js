@@ -72,4 +72,25 @@ export const articleAddService = (articleModel) => {
         method: 'post',
         data: articleModel
     })
+    //return request.post('/api/v1/article/add', articleModel)
+}
+
+// 修改文章
+export const articleUpdateService = (articleModel) => {
+    return request({
+        url: '/api/v1/article/update',
+        method: 'put',
+        data: articleModel
+    })
+}
+
+// 删除文章
+export const articleDeleteService = (articleId) => {
+    return request({
+        url: '/api/v1/article/delete',
+        method: 'delete',
+        params: {
+            articleId
+        }
+    })
 }

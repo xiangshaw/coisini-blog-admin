@@ -4,7 +4,7 @@
       <div class="header">
         <span>文章管理</span>
         <div class="extra">
-          <el-button type="primary">添加文章</el-button>
+          <el-button type="primary" @click="clearDrawer">添加文章</el-button>
         </div>
       </div>
     </template>
@@ -62,14 +62,14 @@
         class="custom-loading-svg"
         element-loading-svg-view-box="-10, -10, 50, 50"
         :data="articles" style="width: 100%">
-      <el-table-column label="文章标题" width="200" prop="title"></el-table-column>
+      <el-table-column label="文章标题" width="150" prop="title"></el-table-column>
       <el-table-column label="分类" prop="categoryId"></el-table-column>
       <el-table-column label="发表时间" prop="createTime"></el-table-column>
       <el-table-column label="状态" prop="state"></el-table-column>
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
-          <el-button :icon="Edit" circle plain type="primary"></el-button>
-          <el-button :icon="Delete" circle plain type="danger"></el-button>
+          <el-button :icon="Edit" circle plain type="primary" @click="updateArticleEcho(row)"></el-button>
+          <el-button :icon="Delete" circle plain type="danger" @click="confirmDeleteArticle(row)"></el-button>
         </template>
       </el-table-column>
       <template #empty>
@@ -89,6 +89,55 @@
         @size-change="handleSizeChange"
         style="margin-top: 20px; justify-content: flex-end"
     />
+    <!-- 抽屉 -->
+    <el-drawer v-model="articleVisibleDrawer" title="添加文章" direction="rtl" size="50%">
+      <!-- 添加文章表单 -->
+      <el-form :model="articleModel" label-width="100px">
+        <el-form-item label="文章标题">
+          <el-input v-model="articleModel.title" placeholder="请输入标题"></el-input>
+        </el-form-item>
+        <el-form-item label="文章分类">
+          <el-select placeholder="请选择" v-model="articleModel.categoryId">
+            <el-option v-for="c in articleCategory" :key="c.id" :label="c.categoryName" :value="c.id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <!--
+           auto-upload:是否自动上传
+           action: 服务器接口路径
+           name: 上传的文件字段名
+           headers: 设置上传的请求头
+           on-success: 上传成功的回调函数
+         -->
+        <el-form-item label="文章封面">
+          <el-upload class="avatar-uploader"
+                     :show-file-list="false"
+                     action="/coisiniBlogApi/api/v1/file/admin/upload"
+                     name="file"
+                     :headers="{'Authorization':tokenStore.token}"
+                     :on-success=uploadSuccess
+          >
+            <img v-if="articleModel.coverImg" :src="articleModel.coverImg" class="avatar"/>
+            <el-icon v-else class="avatar-uploader-icon">
+              <Plus/>
+            </el-icon>
+          </el-upload>
+        </el-form-item>
+        <el-form-item label="文章内容">
+          <div class="editor">
+            <quill-editor
+                theme="snow"
+                v-model:content="articleModel.content"
+                contentType="html">
+            </quill-editor>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="addArticle(1)">发布</el-button>
+          <el-button type="info" @click="addArticle(0)">草稿</el-button>
+        </el-form-item>
+      </el-form>
+    </el-drawer>
   </el-card>
 </template>
 
@@ -96,10 +145,17 @@
 import {
   Edit,
   Delete,
-  Search
+  Search,
+  Plus,
 } from '@element-plus/icons-vue';
 import {ref, watch} from 'vue';
-import {articleCategoryGetService, articleListService} from '@/api/article.js';
+import {
+  articleAddService,
+  articleCategoryGetService,
+  articleDeleteService,
+  articleListService,
+  articleUpdateService
+} from '@/api/article.js';
 
 // 初始化loading
 const loading = ref(true);
@@ -215,6 +271,121 @@ const getArticleList = async () => {
   }
 };
 getArticleList();
+
+/**
+ * 添加文章
+ */
+import {QuillEditor} from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import {useTokenStore} from "@/stores/token";
+import {ElMessage, ElMessageBox} from "element-plus";
+// 获取token状态
+const tokenStore = useTokenStore()
+// 上传图片成功回调
+const uploadSuccess = (result) => {
+  articleModel.value.coverImg = result.data
+}
+// 控制抽屉是否显示
+const articleVisibleDrawer = ref(false)
+// 添加表单数据模型
+const articleModel = ref({
+  title: '',
+  categoryId: '',
+  coverImg: '',
+  content: '',
+  state: ''
+})
+// 添加文章
+const addArticle = async (state) => {
+  articleModel.value.state = state
+
+  // 如果选择发布并且有文章ID，调用更新方法
+  if (state === 1 && articleModel.value.id) {
+    // 如果选择发布并且有文章ID，调用更新方法
+    await updateArticle();
+  } else {
+    // 否则调用新增方法
+    let result = await articleAddService(articleModel.value);
+    ElMessage.success(result.message ? result.message : '文章发布成功');
+  }
+
+  // 隐藏抽屉
+  articleVisibleDrawer.value = false
+  // 刷新获取文章
+  await getArticleList()
+}
+// 清空抽屉
+const clearDrawer = () => {
+  articleModel.value = {
+    title: '',
+    categoryId: '',
+    coverImg: '',
+    content: '<span></span>',
+    state: ''
+  };
+  articleVisibleDrawer.value = true;
+}
+
+
+import {onMounted} from 'vue';
+// 加载获取文章分类列表
+onMounted(() => {
+  getArticleCategoryList();
+});
+
+// 记录当前编辑的文章ID
+let currentArticleId = ref('');
+
+// 打开编辑抽屉
+const updateArticleEcho = (row) => {
+
+  articleModel.value.categoryId = row.categoryId;
+  articleModel.value.title = row.title;
+  articleModel.value.content = row.content;
+  articleModel.value.coverImg = row.coverImg;
+  articleModel.value.state = row.state;
+
+  currentArticleId.value = row.id;
+  articleVisibleDrawer.value = true;
+}
+
+// 修改文章
+const updateArticle = async () => {
+  articleModel.value.categoryId = updateArticleEcho.row.categoryId.id;
+  let result = await articleUpdateService(articleModel.value);
+  ElMessage.success(result.message ? result.message : '文章修改成功')
+  // 隐藏抽屉
+  articleVisibleDrawer.value = false
+  // 刷新获取文章
+  await getArticleList()
+}
+
+// 删除文章
+const confirmDeleteArticle = (row) => {
+  ElMessageBox.confirm(
+      '你确认删除该文章吗？',
+      '温馨提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(async () => {
+        //用户点击了确认
+        let result = await articleDeleteService(row.id)
+        ElMessage.success(result.message ? result.message : '删除成功')
+        //获取所有文章
+        await getArticleList()
+      })
+      .catch(() => {
+        //用户点击了取消
+        ElMessage({
+          type: 'info',
+          message: '取消删除',
+        })
+      })
+}
 </script>
 
 <style lang="scss" scoped>
@@ -245,5 +416,46 @@ getArticleList();
     padding: 30px 0;
     text-align: center;
   }
+
+  /* 抽屉样式 */
+  .avatar-uploader {
+    /* 使用 :deep() 确保样式穿透到子组件 */
+    :deep(.avatar) {
+      width: 178px;
+      height: 178px;
+      display: block;
+    }
+
+    :deep(.el-upload) {
+      border: 1px dashed var(--el-border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: var(--el-transition-duration-fast);
+    }
+
+    :deep(.el-upload:hover) {
+      border-color: var(--el-color-primary);
+    }
+
+    .el-icon.avatar-uploader-icon {
+      font-size: 28px;
+      color: #8c939d;
+      width: 178px;
+      height: 178px;
+      text-align: center;
+    }
+  }
+
+  .editor {
+    width: 100%;
+
+    /* 深度穿透 Quill 编辑器样式 */
+    :deep(.ql-editor) {
+      min-height: 200px;
+    }
+  }
 }
+
 </style>

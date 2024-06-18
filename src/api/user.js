@@ -26,3 +26,11 @@ export const userLoginService = (loginData) => {
         data: loginData
     })
 }
+
+// 获取用户信息接口函数
+export const userInfoService = () => {
+    return request({
+        url: '/api/v1/auth/userInfo',
+        method: 'get',
+    })
+}
