@@ -17,13 +17,13 @@ const rules = {
 }
 import { useUserInfoStore } from '@/stores/userInfo';
 const userInfo = ref({...useUserInfoStore().info})
-//修改用户信息
+// 修改用户信息
 import {userInfoUpdateService} from '@/api/user.js'
 import { ElMessage } from 'element-plus';
 const updateUserInfo = async ()=>{
   let result = await userInfoUpdateService(userInfo.value)
   ElMessage.success(result.message? result.message:'修改成功')
-  //更新pinia中的数据
+  // 更新pinia中的数据
   useUserInfoStore().info.nickName=userInfo.value.nickName
   useUserInfoStore().info.description=userInfo.value.description
   useUserInfoStore().info.email = userInfo.value.email

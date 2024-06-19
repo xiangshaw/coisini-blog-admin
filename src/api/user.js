@@ -52,3 +52,12 @@ export const userAvatarUpdateService = (avatar) => {
         data: avatar
     })
 }
+
+// 用户修改密码接口函数
+export const userPasswordUpdateService = (password) => {
+    return request({
+        url: '/api/v1/user/password',
+        method: 'patch',
+        data: password
+    })
+}
