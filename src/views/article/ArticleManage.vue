@@ -1,31 +1,35 @@
 <script setup>
+import { ref, watch, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
 import {
   Edit,
   Delete,
   Search,
   Plus,
 } from '@element-plus/icons-vue';
-import {ref, watch} from 'vue';
 import {
   articleAddService,
   articleCategoryGetService,
   articleDeleteService,
   articleListService,
-  articleUpdateService
+  articleUpdateService,
 } from '@/api/article.js';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import { useTokenStore } from '@/stores/token';
 
 // 初始化loading
 const loading = ref(true);
 const svg = `
-        <path class="path" d="
-          M 30 15
-          L 28 17
-          M 25.61 25.61
-          A 15 15, 0, 0, 1, 15 30
-          A 15 15, 0, 1, 1, 27.99 7.5
-          L 15 15
-        " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
-      `;
+  <path class="path" d="
+    M 30 15
+    L 28 17
+    M 25.61 25.61
+    A 15 15, 0, 0, 1, 15 30
+    A 15 15, 0, 1, 1, 27.99 7.5
+    L 15 15
+  " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+`;
 
 // 初始化分类数据
 const articleCategory = ref([]);
@@ -41,7 +45,7 @@ const articleSearchObj = ref({
   categoryId: '',
   createTimeBegin: '',
   createTimeEnd: '',
-  state: ''
+  state: '',
 });
 
 // 搜索条件中的开始和结束时间
@@ -78,7 +82,7 @@ const resetArticleSearch = () => {
     categoryId: '',
     createTimeBegin: '',
     createTimeEnd: '',
-    state: ''
+    state: '',
   };
   articleCreateTimes.value = [];
   getArticleList();
@@ -132,90 +136,73 @@ getArticleList();
 /**
  * 添加文章
  */
-import {QuillEditor} from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import {useTokenStore} from "@/stores/token";
-import {ElMessage, ElMessageBox} from "element-plus";
-// 获取token状态
-const tokenStore = useTokenStore()
+const tokenStore = useTokenStore();
 // 上传图片成功回调
 const uploadSuccess = (result) => {
-  articleModel.value.coverImg = result.data
-}
+  articleModel.value.coverImg = result.data;
+};
 // 控制抽屉是否显示
-const articleVisibleDrawer = ref(false)
+const articleVisibleDrawer = ref(false);
 // 添加表单数据模型
 const articleModel = ref({
+  id: '',
   title: '',
   categoryId: '',
   coverImg: '',
   content: '',
-  state: ''
-})
+  state: '',
+});
 // 添加文章
 const addArticle = async (state) => {
-  articleModel.value.state = state
-
-  // 如果选择发布并且有文章ID，调用更新方法
-  if (state === 1 && articleModel.value.id) {
-    // 如果选择发布并且有文章ID，调用更新方法
-    await updateArticle();
-  } else {
-    // 否则调用新增方法
-    let result = await articleAddService(articleModel.value);
-    ElMessage.success(result.message ? result.message : '文章发布成功');
+  articleModel.value.state = state;
+  try {
+    if (articleModel.value.id) {
+      // 如果有id，调用更新方法
+      let result = await articleUpdateService(articleModel.value);
+      ElMessage.success(result.message ? result.message : '文章更新成功');
+    } else {
+      // 否则调用新增方法
+      let result = await articleAddService(articleModel.value);
+      ElMessage.success(result.message ? result.message : '文章发布成功');
+    }
+  } catch (error) {
+    ElMessage.error('操作失败，请重试');
+  } finally {
+    // 隐藏抽屉
+    articleVisibleDrawer.value = false;
+    // 刷新获取文章
+    await getArticleList();
   }
+};
 
-  // 隐藏抽屉
-  articleVisibleDrawer.value = false
-  // 刷新获取文章
-  await getArticleList()
-}
 // 清空抽屉
 const clearDrawer = () => {
   articleModel.value = {
+    id: '', // 重置id
     title: '',
     categoryId: '',
     coverImg: '',
     content: '<span></span>',
-    state: ''
+    state: '',
   };
   articleVisibleDrawer.value = true;
-}
+};
 
-
-import {onMounted} from 'vue';
-// 加载获取文章分类列表
 onMounted(() => {
   getArticleCategoryList();
 });
 
-// 记录当前编辑的文章ID
-let currentArticleId = ref('');
-
 // 打开编辑抽屉
 const updateArticleEcho = (row) => {
-
+  articleModel.value.id = row.id; // 设置id
   articleModel.value.categoryId = row.categoryId;
   articleModel.value.title = row.title;
   articleModel.value.content = row.content;
   articleModel.value.coverImg = row.coverImg;
   articleModel.value.state = row.state;
 
-  currentArticleId.value = row.id;
   articleVisibleDrawer.value = true;
-}
-
-// 修改文章
-const updateArticle = async () => {
-  articleModel.value.categoryId = updateArticleEcho.row.categoryId.id;
-  let result = await articleUpdateService(articleModel.value);
-  ElMessage.success(result.message ? result.message : '文章修改成功')
-  // 隐藏抽屉
-  articleVisibleDrawer.value = false
-  // 刷新获取文章
-  await getArticleList()
-}
+};
 
 // 删除文章
 const confirmDeleteArticle = (row) => {
@@ -229,20 +216,20 @@ const confirmDeleteArticle = (row) => {
       }
   )
       .then(async () => {
-        //用户点击了确认
-        let result = await articleDeleteService(row.id)
-        ElMessage.success(result.message ? result.message : '删除成功')
-        //获取所有文章
-        await getArticleList()
+        // 用户点击了确认
+        let result = await articleDeleteService(row.id);
+        ElMessage.success(result.message ? result.message : '删除成功');
+        // 获取所有文章
+        await getArticleList();
       })
       .catch(() => {
-        //用户点击了取消
+        // 用户点击了取消
         ElMessage({
           type: 'info',
           message: '取消删除',
-        })
-      })
-}
+        });
+      });
+};
 </script>
 
 <template>
@@ -345,12 +332,12 @@ const confirmDeleteArticle = (row) => {
         </el-form-item>
         <el-form-item label="文章分类">
           <el-select placeholder="请选择" v-model="articleModel.categoryId">
-            <el-option v-for="c in articleCategory" :key="c.id" :label="c.categoryName" :value="c.id">
+            <el-option v-for="c in articleCategory" :key="c.id" :label="c.categoryName" :value="c.categoryName">
             </el-option>
           </el-select>
         </el-form-item>
         <!--
-           auto-upload:是否自动上传
+           auto-upload: 是否自动上传
            action: 服务器接口路径
            name: 上传的文件字段名
            headers: 设置上传的请求头
@@ -362,8 +349,7 @@ const confirmDeleteArticle = (row) => {
                      action="/coisiniBlogApi/api/v1/file/admin/upload"
                      name="file"
                      :headers="{'Authorization':tokenStore.token}"
-                     :on-success=uploadSuccess
-          >
+                     :on-success=uploadSuccess>
             <img v-if="articleModel.coverImg" :src="articleModel.coverImg" class="avatar"/>
             <el-icon v-else class="avatar-uploader-icon">
               <Plus/>
