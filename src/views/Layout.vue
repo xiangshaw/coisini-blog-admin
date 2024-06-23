@@ -70,17 +70,23 @@ const handleCommand = (command) => {
       <div class="el-aside__logo"></div>
       <el-menu active-text-color="#ffd04b" background-color="#232323" text-color="#fff"
                :default-active="$route.path" router>
-        <el-menu-item index="/article/category">
+        <el-menu-item index="/category/index">
           <el-icon>
             <Management/>
           </el-icon>
           <span>文章分类</span>
         </el-menu-item>
-        <el-menu-item index="/article/manage">
+        <el-menu-item index="/article/index">
           <el-icon>
             <Promotion/>
           </el-icon>
           <span>文章管理</span>
+        </el-menu-item>
+        <el-menu-item index="/menu/index">
+          <el-icon>
+            <Management/>
+          </el-icon>
+          <span>菜单管理</span>
         </el-menu-item>
         <el-sub-menu>
           <template #title>
@@ -108,6 +114,18 @@ const handleCommand = (command) => {
             <span>重置密码</span>
           </el-menu-item>
         </el-sub-menu>
+        <el-menu-item index="/log/loginLog/index">
+          <el-icon>
+            <Management/>
+          </el-icon>
+          <span>登录日志</span>
+        </el-menu-item>
+        <el-menu-item index="/log/operLog/index">
+          <el-icon>
+            <Management/>
+          </el-icon>
+          <span>操作日志</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <!-- 右侧主区域 -->

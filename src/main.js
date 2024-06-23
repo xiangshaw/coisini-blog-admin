@@ -14,6 +14,10 @@ const app = createApp(App)
 const pinia = createPinia()
 const persist = createPersistedState()
 pinia.use(persist)
+
+// 动态路由权限
+import '@/router/permission'
+
 app
     .use(pinia)
     .use(ElementPlus, {locale})

@@ -1,237 +1,3 @@
-<script setup>
-import { ref, watch, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
-import {
-  Edit,
-  Delete,
-  Search,
-  Plus,
-} from '@element-plus/icons-vue';
-import {
-  articleAddService,
-  articleCategoryGetService,
-  articleDeleteService,
-  articleListService,
-  articleUpdateService,
-} from '@/api/article.js';
-import { QuillEditor } from '@vueup/vue-quill';
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
-import { useTokenStore } from '@/stores/token';
-
-// 初始化loading
-const loading = ref(true);
-const svg = `
-  <path class="path" d="
-    M 30 15
-    L 28 17
-    M 25.61 25.61
-    A 15 15, 0, 0, 1, 15 30
-    A 15 15, 0, 1, 1, 27.99 7.5
-    L 15 15
-  " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
-`;
-
-// 初始化分类数据
-const articleCategory = ref([]);
-
-// 文章列表数据模型
-const articles = ref([]);
-
-// 初始化搜索条件
-const articleSearchObj = ref({
-  current: 1,
-  limit: 10,
-  keyword: '',
-  categoryId: '',
-  createTimeBegin: '',
-  createTimeEnd: '',
-  state: '',
-});
-
-// 搜索条件中的开始和结束时间
-const articleCreateTimes = ref([]);
-
-// 监听操作时间的变化
-watch(articleCreateTimes, (newTimes) => {
-  if (newTimes && newTimes.length === 2) {
-    articleSearchObj.value.createTimeBegin = formatDateTime(newTimes[0]);
-    articleSearchObj.value.createTimeEnd = formatDateTime(newTimes[1]);
-  } else {
-    articleSearchObj.value.createTimeBegin = '';
-    articleSearchObj.value.createTimeEnd = '';
-  }
-});
-
-// 时间格式化函数
-const formatDateTime = (date) => {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-// 清空搜索条件
-const resetArticleSearch = () => {
-  articleSearchObj.value = {
-    current: 1,
-    limit: 10,
-    keyword: '',
-    categoryId: '',
-    createTimeBegin: '',
-    createTimeEnd: '',
-    state: '',
-  };
-  articleCreateTimes.value = [];
-  getArticleList();
-};
-
-// 初始化总条数
-const total = ref(0);
-
-// 处理分页变化
-const handlePageChange = (page) => {
-  articleSearchObj.value.current = page;
-  getArticleList();
-};
-
-// 处理每页显示数量变化
-const handleSizeChange = (size) => {
-  articleSearchObj.value.limit = size;
-  getArticleList();
-};
-
-/**
- * 获取文章分类列表
- */
-const getArticleCategoryList = async () => {
-  try {
-    let result = await articleCategoryGetService();
-    articleCategory.value = result.data;
-  } catch (error) {
-    console.error('Error fetching article categories:', error);
-  }
-};
-getArticleCategoryList();
-
-/**
- * 获取文章列表
- */
-const getArticleList = async () => {
-  loading.value = true;
-  try {
-    let result = await articleListService(articleSearchObj.value);
-    articles.value = result.data.records;
-    total.value = result.data.total;
-  } catch (error) {
-    console.error('Error fetching articles:', error);
-  } finally {
-    loading.value = false;
-  }
-};
-getArticleList();
-
-/**
- * 添加文章
- */
-const tokenStore = useTokenStore();
-// 上传图片成功回调
-const uploadSuccess = (result) => {
-  articleModel.value.coverImg = result.data;
-};
-// 控制抽屉是否显示
-const articleVisibleDrawer = ref(false);
-// 添加表单数据模型
-const articleModel = ref({
-  id: '',
-  title: '',
-  categoryId: '',
-  coverImg: '',
-  content: '',
-  state: '',
-});
-// 添加文章
-const addArticle = async (state) => {
-  articleModel.value.state = state;
-  try {
-    if (articleModel.value.id) {
-      // 如果有id，调用更新方法
-      let result = await articleUpdateService(articleModel.value);
-      ElMessage.success(result.message ? result.message : '文章更新成功');
-    } else {
-      // 否则调用新增方法
-      let result = await articleAddService(articleModel.value);
-      ElMessage.success(result.message ? result.message : '文章发布成功');
-    }
-  } catch (error) {
-    ElMessage.error('操作失败，请重试');
-  } finally {
-    // 隐藏抽屉
-    articleVisibleDrawer.value = false;
-    // 刷新获取文章
-    await getArticleList();
-  }
-};
-
-// 清空抽屉
-const clearDrawer = () => {
-  articleModel.value = {
-    id: '', // 重置id
-    title: '',
-    categoryId: '',
-    coverImg: '',
-    content: '<span></span>',
-    state: '',
-  };
-  articleVisibleDrawer.value = true;
-};
-
-onMounted(() => {
-  getArticleCategoryList();
-});
-
-// 打开编辑抽屉
-const updateArticleEcho = (row) => {
-  articleModel.value.id = row.id; // 设置id
-  articleModel.value.categoryId = row.categoryId;
-  articleModel.value.title = row.title;
-  articleModel.value.content = row.content;
-  articleModel.value.coverImg = row.coverImg;
-  articleModel.value.state = row.state;
-
-  articleVisibleDrawer.value = true;
-};
-
-// 删除文章
-const confirmDeleteArticle = (row) => {
-  ElMessageBox.confirm(
-      '你确认删除该文章吗？',
-      '温馨提示',
-      {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        type: 'warning',
-      }
-  )
-      .then(async () => {
-        // 用户点击了确认
-        let result = await articleDeleteService(row.id);
-        ElMessage.success(result.message ? result.message : '删除成功');
-        // 获取所有文章
-        await getArticleList();
-      })
-      .catch(() => {
-        // 用户点击了取消
-        ElMessage({
-          type: 'info',
-          message: '取消删除',
-        });
-      });
-};
-</script>
-
 <template>
   <el-card class="page-container">
     <template #header>
@@ -373,6 +139,240 @@ const confirmDeleteArticle = (row) => {
     </el-drawer>
   </el-card>
 </template>
+
+<script setup>
+import { ref, watch, onMounted } from 'vue';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import {
+  Edit,
+  Delete,
+  Search,
+  Plus,
+} from '@element-plus/icons-vue';
+import {
+  articleAddService,
+  articleCategoryGetService,
+  articleDeleteService,
+  articleListService,
+  articleUpdateService,
+} from '@/api/article.js';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import { useTokenStore } from '@/stores/token';
+
+// 初始化loading
+const loading = ref(true);
+const svg = `
+  <path class="path" d="
+    M 30 15
+    L 28 17
+    M 25.61 25.61
+    A 15 15, 0, 0, 1, 15 30
+    A 15 15, 0, 1, 1, 27.99 7.5
+    L 15 15
+  " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+`;
+
+// 初始化分类数据
+const articleCategory = ref([]);
+
+// 文章列表数据模型
+const articles = ref([]);
+
+// 初始化搜索条件
+const articleSearchObj = ref({
+  current: 1,
+  limit: 10,
+  keyword: '',
+  categoryId: '',
+  createTimeBegin: '',
+  createTimeEnd: '',
+  state: '',
+});
+
+// 搜索条件中的开始和结束时间
+const articleCreateTimes = ref([]);
+
+// 监听操作时间的变化
+watch(articleCreateTimes, (newTimes) => {
+  if (newTimes && newTimes.length === 2) {
+    articleSearchObj.value.createTimeBegin = formatDateTime(newTimes[0]);
+    articleSearchObj.value.createTimeEnd = formatDateTime(newTimes[1]);
+  } else {
+    articleSearchObj.value.createTimeBegin = '';
+    articleSearchObj.value.createTimeEnd = '';
+  }
+});
+
+// 时间格式化函数
+const formatDateTime = (date) => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  const hours = date.getHours().toString().padStart(2, '0');
+  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const seconds = date.getSeconds().toString().padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+// 清空搜索条件
+const resetArticleSearch = () => {
+  articleSearchObj.value = {
+    current: 1,
+    limit: 10,
+    keyword: '',
+    categoryId: '',
+    createTimeBegin: '',
+    createTimeEnd: '',
+    state: '',
+  };
+  articleCreateTimes.value = [];
+  getArticleList();
+};
+
+// 初始化总条数
+const total = ref(0);
+
+// 处理分页变化
+const handlePageChange = (page) => {
+  articleSearchObj.value.current = page;
+  getArticleList();
+};
+
+// 处理每页显示数量变化
+const handleSizeChange = (size) => {
+  articleSearchObj.value.limit = size;
+  getArticleList();
+};
+
+// 页面初始化时加载
+onMounted(() => {
+  getArticleCategoryList();
+});
+
+/**
+ * 获取文章分类列表
+ */
+const getArticleCategoryList = async () => {
+  try {
+    let result = await articleCategoryGetService();
+    articleCategory.value = result.data;
+  } catch (error) {
+    console.error('Error fetching article categories:', error);
+  }
+};
+
+/**
+ * 获取文章列表
+ */
+const getArticleList = async () => {
+  loading.value = true;
+  try {
+    let result = await articleListService(articleSearchObj.value);
+    articles.value = result.data.records;
+    total.value = result.data.total;
+  } catch (error) {
+    console.error('Error fetching articles:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+getArticleList();
+
+/**
+ * 添加文章
+ */
+const tokenStore = useTokenStore();
+// 上传图片成功回调
+const uploadSuccess = (result) => {
+  articleModel.value.coverImg = result.data;
+};
+// 控制抽屉是否显示
+const articleVisibleDrawer = ref(false);
+// 添加表单数据模型
+const articleModel = ref({
+  id: '',
+  title: '',
+  categoryId: '',
+  coverImg: '',
+  content: '',
+  state: '',
+});
+// 添加文章
+const addArticle = async (state) => {
+  articleModel.value.state = state;
+  try {
+    if (articleModel.value.id) {
+      // 如果有id，调用更新方法
+      let result = await articleUpdateService(articleModel.value);
+      ElMessage.success(result.message ? result.message : '文章更新成功');
+    } else {
+      // 否则调用新增方法
+      let result = await articleAddService(articleModel.value);
+      ElMessage.success(result.message ? result.message : '文章发布成功');
+    }
+  } catch (error) {
+    ElMessage.error('操作失败，请重试');
+  } finally {
+    // 隐藏抽屉
+    articleVisibleDrawer.value = false;
+    // 刷新获取文章
+    await getArticleList();
+  }
+};
+
+// 清空抽屉
+const clearDrawer = () => {
+  articleModel.value = {
+    id: '', // 重置id
+    title: '',
+    categoryId: '',
+    coverImg: '',
+    content: '<span></span>',
+    state: '',
+  };
+  articleVisibleDrawer.value = true;
+};
+
+// 打开编辑抽屉
+const updateArticleEcho = (row) => {
+  articleModel.value.id = row.id; // 设置id
+  articleModel.value.categoryId = row.categoryId;
+  articleModel.value.title = row.title;
+  articleModel.value.content = row.content;
+  articleModel.value.coverImg = row.coverImg;
+  articleModel.value.state = row.state;
+
+  articleVisibleDrawer.value = true;
+};
+
+// 删除文章
+const confirmDeleteArticle = (row) => {
+  ElMessageBox.confirm(
+      '你确认删除该文章吗？',
+      '温馨提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }
+  )
+      .then(async () => {
+        // 用户点击了确认
+        let result = await articleDeleteService(row.id);
+        ElMessage.success(result.message ? result.message : '删除成功');
+        // 获取所有文章
+        await getArticleList();
+      })
+      .catch(() => {
+        // 用户点击了取消
+        ElMessage({
+          type: 'info',
+          message: '取消删除',
+        });
+      });
+};
+</script>
 
 <style lang="scss" scoped>
 .page-container {

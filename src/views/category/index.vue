@@ -122,6 +122,7 @@ import {
 } from '@/api/article.js'
 import {ElMessage, ElMessageBox} from "element-plus";
 
+// 获取分类数据
 const getAllCategory = async () => {
   let result = await articleCategoryListService(categorySearchObj.value);
   loading.value = false
@@ -220,7 +221,7 @@ const resetSearch = () => {
   getAllCategory()
 }
 
-//控制添加分类弹窗
+// 控制添加分类弹窗
 const dialogVisible = ref(false)
 // 弹窗标题
 const title = ref('')

@@ -37,6 +37,8 @@ const getCode = async () => {
 onMounted(() => {
   // 清除token
   tokenStore.removeToken()
+  // 清除用户信息
+  useUserInfoStore().removeInfo()
   // 页面加载时获取验证码
   getCode()
 })
@@ -80,6 +82,7 @@ const register = async () => {
 import { useRouter } from "vue-router"
 // 导入token状态
 import { useTokenStore } from "@/stores/token"
+import {useUserInfoStore} from "@/stores/userInfo";
 // 获取token状态
 const tokenStore = useTokenStore();
 // 登录功能
