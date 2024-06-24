@@ -7,7 +7,7 @@ import {
   Crop,
   EditPen,
   SwitchButton,
-  CaretBottom
+  CaretBottom, Postcard, Memo, Compass
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 
@@ -116,15 +116,21 @@ const handleCommand = (command) => {
         </el-sub-menu>
         <el-menu-item index="/log/loginLog/index">
           <el-icon>
-            <Management/>
+            <Memo/>
           </el-icon>
           <span>登录日志</span>
         </el-menu-item>
         <el-menu-item index="/log/operLog/index">
           <el-icon>
-            <Management/>
+            <Postcard/>
           </el-icon>
           <span>操作日志</span>
+        </el-menu-item>
+        <el-menu-item index="/role/index">
+          <el-icon>
+            <Compass/>
+          </el-icon>
+          <span>角色管理</span>
         </el-menu-item>
       </el-menu>
     </el-aside>

@@ -12,6 +12,7 @@ import UserResetPasswordVue from '@/views/user/UserResetPassword.vue'
 import MenuVue from '@/views/menu/index.vue'
 import LoginLogVue from '@/views/log/loginLog/index.vue'
 import OperLogVue from '@/views/log/operLog/index.vue'
+import RoleVue from '@/views/role/index.vue'
 
 // 定义路由关系
 const routes = [
@@ -30,7 +31,8 @@ const routes = [
             { path: '/user/resetPassword', component: UserResetPasswordVue },
             { path: '/menu/index', component: MenuVue },
             { path: '/log/loginLog/index', component: LoginLogVue },
-            { path: '/log/operLog/index', component: OperLogVue }
+            { path: '/log/operLog/index', component: OperLogVue },
+            { path: '/role/index', component: RoleVue }
 
         ]
     }

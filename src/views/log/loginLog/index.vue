@@ -38,7 +38,7 @@
       </div>
     </template>
 
-    <!-- 文章列表 -->
+    <!-- 登录日志列表 -->
     <el-table
         v-loading="loading"
         element-loading-text="Loading..."

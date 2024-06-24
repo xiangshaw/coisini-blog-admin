@@ -38,7 +38,7 @@
       </div>
     </template>
 
-    <!-- 文章列表 -->
+    <!-- 操作日志列表 -->
     <el-table
         v-loading="loading"
         element-loading-text="Loading..."
@@ -50,15 +50,34 @@
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column label="序号" width="100" type="index"></el-table-column>
       <el-table-column label="模块标题" width="150" prop="title"></el-table-column>
-      <el-table-column label="业务类型" prop="businessType"></el-table-column>
+      <!--  0其他 1新增 2修改 3删除    -->
+      <el-table-column label="业务类型" prop="businessType">
+        <template #default="{ row }">
+          <el-tag v-if="row.businessType === 1" type="success">新增</el-tag>
+          <el-tag v-else-if="row.businessType === 2" type="warning">修改</el-tag>
+          <el-tag v-else-if="row.businessType === 3" type="danger">删除</el-tag>
+          <el-tag v-else type="info">其他</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="请求方式" prop="requestMethod"></el-table-column>
       <!--  0其他 1后台用户 2手机端用户    -->
-      <el-table-column label="操作类别" prop="operatorType"></el-table-column>
+      <el-table-column label="操作类别" prop="operatorType">
+        <template #default="{ row }">
+          <el-tag v-if="row.operatorType === 1" type="success">后台用户</el-tag>
+          <el-tag v-else-if="row.operatorType === 2" type="warning">手机端用户</el-tag>
+          <el-tag v-else type="info">其他</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作人员" prop="operName"></el-table-column>
       <el-table-column label="请求URL" prop="operUrl"></el-table-column>
       <el-table-column label="返回参数" prop="jsonResult"></el-table-column>
       <!--   0成功 1失败   -->
-      <el-table-column label="操作状态" prop="status"></el-table-column>
+      <el-table-column label="操作状态" prop="status">
+        <template #default="{ row }">
+          <el-tag v-if="row.status === false" type="success">成功</el-tag>
+          <el-tag v-else type="danger">失败</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="错误消息" prop="errorMsg"></el-table-column>
       <el-table-column label="时间" prop="createTime"></el-table-column>
       <el-table-column label="操作" fixed="right" align="center" width="100">
@@ -92,16 +111,31 @@
         @close="clearSelectedOperLogDetails">
       <div v-if="selectedOperLogDetails">
         <p><strong>模块标题：</strong> {{ selectedOperLogDetails.title }}</p>
-        <p><strong>业务类型：</strong> {{ selectedOperLogDetails.businessType }}</p>
+        <!--  0其他 1新增 2修改 3删除    -->
+        <p><strong>业务类型：</strong>
+          <el-tag v-if="selectedOperLogDetails.businessType === 1" type="success">新增</el-tag>
+          <el-tag v-else-if="selectedOperLogDetails.businessType === 2" type="warning">修改</el-tag>
+          <el-tag v-else-if="selectedOperLogDetails.businessType === 3" type="danger">删除</el-tag>
+          <el-tag v-else type="info">其他</el-tag>
+        </p>
         <p><strong>方法名称：</strong> {{ selectedOperLogDetails.method }}</p>
         <p><strong>请求方式：</strong> {{ selectedOperLogDetails.requestMethod }}</p>
-        <p><strong>操作类别：</strong> {{ selectedOperLogDetails.operatorType }}</p>
+        <!--  0其他 1后台用户 2手机端用户    -->
+        <p><strong>操作类别：</strong>
+          <el-tag v-if="selectedOperLogDetails.operatorType === 1" type="success">后台用户</el-tag>
+          <el-tag v-else-if="selectedOperLogDetails.operatorType === 2" type="warning">手机端用户</el-tag>
+          <el-tag v-else type="info">其他</el-tag>
+        </p>
         <p><strong>操作人员：</strong> {{ selectedOperLogDetails.operName }}</p>
         <p><strong>请求URL：</strong> {{ selectedOperLogDetails.operUrl }}</p>
         <p><strong>主机地址：</strong> {{ selectedOperLogDetails.operIp }}</p>
         <p><strong>请求参数：</strong> {{ selectedOperLogDetails.operParam }}</p>
         <p><strong>返回参数：</strong> {{ selectedOperLogDetails.jsonResult }}</p>
-        <p><strong>操作状态：</strong> {{ selectedOperLogDetails.status }}</p>
+        <!--   0成功 1失败   -->
+        <p><strong>操作状态：</strong>
+          <el-tag v-if="selectedOperLogDetails.status === false" type="success">成功</el-tag>
+          <el-tag v-else type="danger">失败</el-tag>
+        </p>
         <p><strong>错误消息：</strong> {{ selectedOperLogDetails.errorMsg }}</p>
         <p><strong>时间：</strong> {{ selectedOperLogDetails.createTime }}</p>
       </div>
@@ -135,7 +169,7 @@ const svg = `
   " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
 `;
 
-// 登录日志数据模型
+// 操作日志数据模型
 const loginLogs = ref([]);
 
 // 初始化搜索条件
@@ -186,7 +220,7 @@ const formatDateTime = (date) => {
 };
 
 /**
- * 获取登录日志列表
+ * 获取操作日志列表
  */
 const getOperLog = async () => {
   loading.value = true;
@@ -233,7 +267,7 @@ const handleSizeChange = (size) => {
 // 删除
 const confirmDeleteOperLog = (row) => {
   ElMessageBox.confirm(
-      '你确认删除该登录日志吗？',
+      '你确认删除该操作日志吗？',
       '温馨提示',
       {
         confirmButtonText: '确认',
@@ -257,7 +291,7 @@ const confirmDeleteOperLog = (row) => {
       });
 };
 
-// 用于存储选中的登录日志
+// 用于存储选中的操作日志
 const selectedOperLog = ref([]);
 
 const handleSelectionChange = (selection) => {
@@ -268,11 +302,11 @@ const handleSelectionChange = (selection) => {
 // 批量删除
 const batchDeleteOperLogs = async () => {
   if (selectedOperLog.value.length === 0) {
-    ElMessage.warning('请选择要删除的登录日志');
+    ElMessage.warning('请选择要删除的操作日志');
     return;
   }
   ElMessageBox.confirm(
-      `确定要删除选中的 ${selectedOperLog.value.length} 个登录日志吗？`,
+      `确定要删除选中的 ${selectedOperLog.value.length} 个操作日志吗？`,
       '温馨提示',
       {
         confirmButtonText: '确认',
@@ -287,7 +321,8 @@ const batchDeleteOperLogs = async () => {
       const result = await batchDeleteOperLog(ids);
       ElMessage.success(result.message ? result.message : '删除成功');
       await getOperLog();
-    } catch (error) {}
+    } catch (error) {
+    }
   }).catch(() => {
     ElMessage({
       type: 'info',
