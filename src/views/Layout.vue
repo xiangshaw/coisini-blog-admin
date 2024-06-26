@@ -7,7 +7,7 @@ import {
   Crop,
   EditPen,
   SwitchButton,
-  CaretBottom, Postcard, Memo, Compass
+  CaretBottom, Postcard, Memo, Compass, Odometer
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 
@@ -70,6 +70,12 @@ const handleCommand = (command) => {
       <div class="el-aside__logo"></div>
       <el-menu active-text-color="#ffd04b" background-color="#232323" text-color="#fff"
                :default-active="$route.path" router>
+        <el-menu-item index="/dashboard/index">
+          <el-icon>
+            <Odometer/>
+          </el-icon>
+          <span>首页</span>
+        </el-menu-item>
         <el-menu-item index="/category/index">
           <el-icon>
             <Management/>
@@ -131,6 +137,12 @@ const handleCommand = (command) => {
             <Compass/>
           </el-icon>
           <span>角色管理</span>
+        </el-menu-item>
+        <el-menu-item index="/user/index">
+          <el-icon>
+            <Compass/>
+          </el-icon>
+          <span>用户管理</span>
         </el-menu-item>
       </el-menu>
     </el-aside>

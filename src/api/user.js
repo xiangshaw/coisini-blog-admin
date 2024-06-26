@@ -61,3 +61,72 @@ export const userPasswordUpdateService = (password) => {
         data: password
     })
 }
+
+// 获取用户分页列表
+export const getUserList = (userSearchObj) => {
+    return request({
+        url: `/api/v1/user/list`,
+        method: 'get',
+        params: userSearchObj
+    })
+}
+
+// 修改用户状态
+export const userStatusUpdateService = (userId, status) => {
+    return request({
+        url: `/api/v1/user/status/${userId}/${status}`,
+        method: 'patch'
+    })
+}
+
+// 删除用户
+export const userDeleteService = (userId) => {
+    return request({
+        url: `/api/v1/user/remove/${userId}`,
+        method: 'delete'
+    })
+}
+
+// 批量删除用户
+export const userBatchDeleteService = (userIdList) => {
+    return request({
+        url: `/api/v1/user/batchRemove`,
+        method: 'delete',
+        data: userIdList
+    })
+}
+
+// 添加用户
+export const userAddService = (userData) => {
+    return request({
+        url: `/api/v1/user/add`,
+        method: 'post',
+        data: userData
+    })
+}
+
+// 修改用户
+export const userUpdatesService = (userData) => {
+    return request({
+        url: `/api/v1/user/updates`,
+        method: 'put',
+        data: userData
+    })
+}
+
+// 根据用户id查询用户已分配的角色
+export const getUserRoleService = (userId) => {
+    return request({
+        url: `/api/v1/user/toAssign/${userId}`,
+        method: 'get'
+    })
+}
+
+// 给用户分配角色
+export const userAssignRoleService = (assignRoleVo) => {
+    return request({
+        url: `/api/v1/user/doAssign`,
+        method: 'post',
+        data: assignRoleVo
+    })
+}

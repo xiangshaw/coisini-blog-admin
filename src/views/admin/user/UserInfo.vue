@@ -17,6 +17,8 @@ const rules = {
 }
 import { useUserInfoStore } from '@/stores/userInfo';
 const userInfo = ref({...useUserInfoStore().info})
+console.log("用户菜单权限：" + JSON.stringify(useUserInfoStore().info.userMenuList))
+console.log("用户按钮权限：" + useUserInfoStore().info.userButtonList)
 // 修改用户信息
 import {userInfoUpdateService} from '@/api/user.js'
 import { ElMessage } from 'element-plus';

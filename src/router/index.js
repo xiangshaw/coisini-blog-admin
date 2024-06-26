@@ -4,15 +4,17 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginVue from '@/views/Login.vue'
 import LayoutVue from '@/views/Layout.vue'
 
-import category from '@/views/category/index.vue'
-import article from '@/views/article/index.vue'
-import UserInfoVue from '@/views/user/UserInfo.vue'
-import UserAvatarVUe from '@/views/user/UserAvatar.vue'
-import UserResetPasswordVue from '@/views/user/UserResetPassword.vue'
-import MenuVue from '@/views/menu/index.vue'
+import dashboard from '@/views/dashboard/index.vue'
+import category from '@/views/admin/category/index.vue'
+import article from '@/views/admin/article/index.vue'
+import UserInfoVue from '@/views/admin/user/UserInfo.vue'
+import UserAvatarVUe from '@/views/admin/user/UserAvatar.vue'
+import UserResetPasswordVue from '@/views/admin/user/UserResetPassword.vue'
+import MenuVue from '@/views/admin/menu/index.vue'
 import LoginLogVue from '@/views/log/loginLog/index.vue'
 import OperLogVue from '@/views/log/operLog/index.vue'
-import RoleVue from '@/views/role/index.vue'
+import RoleVue from '@/views/admin/role/index.vue'
+import UserVue from '@/views/admin/user/index.vue'
 
 // 定义路由关系
 const routes = [
@@ -21,9 +23,10 @@ const routes = [
         path: '/',
         component: LayoutVue,
         // 重定向
-        redirect: '/article/index',
+        redirect: '/dashboard/index',
         // 子路由
         children: [
+            { path: '/dashboard/index', component: dashboard },
             { path: '/category/index', component: category },
             { path: '/article/index', component: article },
             { path: '/user/info', component: UserInfoVue },
@@ -32,7 +35,8 @@ const routes = [
             { path: '/menu/index', component: MenuVue },
             { path: '/log/loginLog/index', component: LoginLogVue },
             { path: '/log/operLog/index', component: OperLogVue },
-            { path: '/role/index', component: RoleVue }
+            { path: '/role/index', component: RoleVue },
+            { path: '/user/index', component: UserVue }
 
         ]
     }
