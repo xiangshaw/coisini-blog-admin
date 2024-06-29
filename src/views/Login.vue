@@ -81,9 +81,9 @@ const register = async () => {
 }
 
 // 导入路由
-import { useRouter } from "vue-router"
+import {useRouter} from "vue-router"
 // 导入token状态
-import { useTokenStore } from "@/stores/token"
+import {useTokenStore} from "@/stores/token"
 // 导入用户信息状态
 import {useUserInfoStore} from "@/stores/userInfo";
 
@@ -105,16 +105,10 @@ const login = async () => {
   const userInfoResult = await userInfoService();
   userInfoStore.setInfo(userInfoResult.data);
   userInfoStore.setUserButton(userInfoResult.data.userButtonList);
-
-  // 生成动态路由
+  // 获取菜单
   const userMenuList = userInfoResult.data.userMenuList;
   // 存储用户菜单
   userInfoStore.setUserMenu(userMenuList)
-  // TODO
-/*  const accessRoutes = generateRoutes(userMenuList);
-  accessRoutes.forEach(route => {
-    router.addRoute(route);
-  });*/
   // 跳转首页
   await router.push('/')
 }

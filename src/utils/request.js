@@ -33,25 +33,26 @@ instance.interceptors.response.use(
         // 判断状态码
         if (result.data.code === 200) {
             return result.data;
+        } else {
+            // 状态码不是200
+            ElMessage.error(result.data.message ? result.data.message : '请求失败')
+            // 异步状态转化成失败的状态
+            return Promise.reject(result.data);
         }
-        // 状态码不是200
-        ElMessage.error(result.data.message ? result.data.message : '请求失败')
-        // 异步状态转化成失败的状态
-        return Promise.reject(result.data);
     },
     err => {
-        // 未登录响应状态码401，未认证状态1，给出对应的提示，并跳转到登录页
-        if (err.response.status === 401 || err.response.status === 1) {
+        // 未登录响应状态码401，未认证状态401，给出对应的提示，并跳转到登录页（?检查 err.response 是否存在，防止空值错误）
+        if (err.response?.code === 401) {
             ElMessage.error('登录已失效，请先登录');
-            // 跳转到登录页
             // 获取token状态
             const tokenStore = useTokenStore();
             // 清除token
             tokenStore.removeToken();
             // 跳转到登录页
-           router.push('/login')
-        }else {
-            ElMessage.error(err.message);
+            router.push('/login')
+        } else {
+            // 判断 err.response 是否存在，以避免访问 undefined 的属性
+            ElMessage.error(err.message || '请求失败');
         }
         // 异步的状态转化成失败的状态
         return Promise.reject(err);

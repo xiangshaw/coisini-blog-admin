@@ -75,9 +75,9 @@
         </el-form-item>
         <el-form-item label="菜单类型" prop="type">
           <el-radio-group v-model="menu.type" :disabled="typeDisabled">
-            <el-radio :label="0" :disabled="type0Disabled">目录</el-radio>
-            <el-radio :label="1" :disabled="type1Disabled">菜单</el-radio>
-            <el-radio :label="2" :disabled="type2Disabled">按钮</el-radio>
+            <el-radio :value="0" :disabled="type0Disabled">目录</el-radio>
+            <el-radio :value="1" :disabled="type1Disabled">菜单</el-radio>
+            <el-radio :value="2" :disabled="type2Disabled">按钮</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="菜单名称" prop="name">
@@ -126,8 +126,8 @@
         </el-form-item>
         <el-form-item label="状态" prop="type">
           <el-radio-group v-model="menu.status">
-            <el-radio :label="false">正常</el-radio>
-            <el-radio :label="true">停用</el-radio>
+            <el-radio :value="false">正常</el-radio>
+            <el-radio :value="true">停用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -147,6 +147,16 @@ import {ElMessage, ElMessageBox} from "element-plus";
 
 // 初始化loading
 const loading = ref(true)
+const svg = `
+  <path class="path" d="
+    M 30 15
+    L 28 17
+    M 25.61 25.61
+    A 15 15, 0, 0, 1, 15 30
+    A 15 15, 0, 1, 1, 27.99 7.5
+    L 15 15
+  " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
+`;
 // 数据和状态
 const sysMenuList = ref([])
 const dialogTitle = ref('')
@@ -263,7 +273,7 @@ const edit = (row) => {
 const saveOrUpdate = async () => {
   try {
     saveBtnDisabled.value = true
-    if (menu.type === 0 && menu.parentId !== 0) {
+    if (menu.type === 0 && menu.parentId !== '0') {
       menu.component = 'ParentView'
     }
     if (!menu.id) {

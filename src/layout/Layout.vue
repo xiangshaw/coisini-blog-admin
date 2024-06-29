@@ -55,7 +55,7 @@ const handleCommand = (command) => {
         })
   } else {
     //路由
-    router.push('/user/' + command)
+    router.push('/admin/' + command)
   }
 }
 
