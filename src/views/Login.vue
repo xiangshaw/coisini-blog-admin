@@ -2,7 +2,7 @@
 import {ref, onMounted} from 'vue'
 import {User, Lock, ChatLineSquare} from '@element-plus/icons-vue'
 import {ElMessage} from 'element-plus'
-import {getCodeService, userLoginService, userRegisterService} from '@/api/user'
+import {getCodeService, userInfoService, userLoginService, userRegisterService} from '@/api/user'
 
 // 切换注册与登录表单，默认是注册
 const switchLoginRegister = ref(false)
@@ -39,6 +39,8 @@ onMounted(() => {
   tokenStore.removeToken()
   // 清除用户信息
   useUserInfoStore().removeInfo()
+  useUserInfoStore().removeUserButton()
+  useUserInfoStore().removeUserMenu()
   // 页面加载时获取验证码
   getCode()
 })
@@ -82,9 +84,13 @@ const register = async () => {
 import { useRouter } from "vue-router"
 // 导入token状态
 import { useTokenStore } from "@/stores/token"
+// 导入用户信息状态
 import {useUserInfoStore} from "@/stores/userInfo";
+
 // 获取token状态
 const tokenStore = useTokenStore();
+// 获取用户信息
+const userInfoStore = useUserInfoStore();
 // 登录功能
 const router = useRouter();
 const login = async () => {
@@ -94,6 +100,21 @@ const login = async () => {
   ElMessage.success(result.message ? result.message : '登录成功')
   // 设置token
   tokenStore.setToken(result.data.token)
+
+  // 获取用户信息
+  const userInfoResult = await userInfoService();
+  userInfoStore.setInfo(userInfoResult.data);
+  userInfoStore.setUserButton(userInfoResult.data.userButtonList);
+
+  // 生成动态路由
+  const userMenuList = userInfoResult.data.userMenuList;
+  // 存储用户菜单
+  userInfoStore.setUserMenu(userMenuList)
+  // TODO
+/*  const accessRoutes = generateRoutes(userMenuList);
+  accessRoutes.forEach(route => {
+    router.addRoute(route);
+  });*/
   // 跳转首页
   await router.push('/')
 }

@@ -13,8 +13,33 @@ export const useUserInfoStore = defineStore('userInfo', () => {
     const removeInfo = () => {
         info.value = {}
     }
+
+    // 2.定义用户按钮权限
+    const userButton = ref([])
+    // 2.1.定义修改用户按钮权限的方法
+    const setUserButton = (newUserButton) => {
+        userButton.value = newUserButton
+    }
+    // 2.2.定义清空用户按钮权限的方法
+    const removeUserButton = () => {
+        userButton.value = []
+    }
+
+    // 3.定义用户菜单权限
+    const userMenu = ref([])
+    // 3.1.定义修改用户菜单权限的方法
+    const setUserMenu = (newUserMenu) => {
+        userMenu.value = newUserMenu
+    }
+    // 3.2.定义清空用户菜单权限的方法
+    const removeUserMenu = () => {
+        userMenu.value = []
+    }
+
     return {
-        info, setInfo, removeInfo
+        info, setInfo, removeInfo,
+        userButton, setUserButton, removeUserButton,
+        userMenu, setUserMenu, removeUserMenu
     }
 }, {
     persist: true

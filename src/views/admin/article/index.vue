@@ -65,6 +65,7 @@
       <el-table-column label="文章标题" width="150" prop="title"></el-table-column>
       <el-table-column label="分类" prop="categoryId"></el-table-column>
       <el-table-column label="发表时间" prop="createTime"></el-table-column>
+      <el-table-column label="更新时间" prop="updateTime"></el-table-column>
       <el-table-column label="状态" prop="state"></el-table-column>
       <el-table-column label="操作" width="100">
         <template #default="{ row }">

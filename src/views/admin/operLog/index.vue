@@ -50,22 +50,19 @@
       <el-table-column type="selection" width="55"></el-table-column>
       <el-table-column label="序号" width="100" type="index"></el-table-column>
       <el-table-column label="模块标题" width="150" prop="title"></el-table-column>
-      <!--  0其他 1新增 2修改 3删除    -->
       <el-table-column label="业务类型" prop="businessType">
         <template #default="{ row }">
-          <el-tag v-if="row.businessType === 1" type="success">新增</el-tag>
-          <el-tag v-else-if="row.businessType === 2" type="warning">修改</el-tag>
-          <el-tag v-else-if="row.businessType === 3" type="danger">删除</el-tag>
-          <el-tag v-else type="info">其他</el-tag>
+          <el-tag :type="getBusinessTypeTagType(row.businessType)">
+            {{ getBusinessTypeLabel(row.businessType) }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="请求方式" prop="requestMethod"></el-table-column>
-      <!--  0其他 1后台用户 2手机端用户    -->
       <el-table-column label="操作类别" prop="operatorType">
         <template #default="{ row }">
-          <el-tag v-if="row.operatorType === 1" type="success">后台用户</el-tag>
-          <el-tag v-else-if="row.operatorType === 2" type="warning">手机端用户</el-tag>
-          <el-tag v-else type="info">其他</el-tag>
+          <el-tag :type="getOperatorTypeTagType(row.operatorType)">
+            {{ getOperatorTypeLabel(row.operatorType) }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作人员" prop="operName"></el-table-column>
@@ -111,20 +108,17 @@
         @close="clearSelectedOperLogDetails">
       <div v-if="selectedOperLogDetails">
         <p><strong>模块标题：</strong> {{ selectedOperLogDetails.title }}</p>
-        <!--  0其他 1新增 2修改 3删除    -->
         <p><strong>业务类型：</strong>
-          <el-tag v-if="selectedOperLogDetails.businessType === 1" type="success">新增</el-tag>
-          <el-tag v-else-if="selectedOperLogDetails.businessType === 2" type="warning">修改</el-tag>
-          <el-tag v-else-if="selectedOperLogDetails.businessType === 3" type="danger">删除</el-tag>
-          <el-tag v-else type="info">其他</el-tag>
+          <el-tag :type="getBusinessTypeTagType(selectedOperLogDetails.businessType)">
+            {{ getBusinessTypeLabel(selectedOperLogDetails.businessType) }}
+          </el-tag>
         </p>
         <p><strong>方法名称：</strong> {{ selectedOperLogDetails.method }}</p>
         <p><strong>请求方式：</strong> {{ selectedOperLogDetails.requestMethod }}</p>
-        <!--  0其他 1后台用户 2手机端用户    -->
         <p><strong>操作类别：</strong>
-          <el-tag v-if="selectedOperLogDetails.operatorType === 1" type="success">后台用户</el-tag>
-          <el-tag v-else-if="selectedOperLogDetails.operatorType === 2" type="warning">手机端用户</el-tag>
-          <el-tag v-else type="info">其他</el-tag>
+          <el-tag :type="getOperatorTypeTagType(selectedOperLogDetails.operatorType)">
+            {{ getOperatorTypeLabel(selectedOperLogDetails.operatorType) }}
+          </el-tag>
         </p>
         <p><strong>操作人员：</strong> {{ selectedOperLogDetails.operName }}</p>
         <p><strong>请求URL：</strong> {{ selectedOperLogDetails.operUrl }}</p>
@@ -350,6 +344,47 @@ const clearSelectedOperLogDetails = () => {
   selectedOperLogDetails.value = null;
 };
 
+// 业务类型
+const businessTypeMap = {
+  OTHER: { label: '其他', type: 'info' },
+  INSERT: { label: '新增', type: 'success' },
+  DELETE: { label: '删除', type: 'danger' },
+  BATCH_REMOVE: { label: '批量删除', type: 'danger' },
+  UPDATE: { label: '修改', type: 'warning' },
+  SELECT: { label: '查询', type: 'info' },
+  ASSGIN: { label: '授权', type: 'success' },
+  CAST: { label: '分配角色', type: 'primary' },
+  EXPORT: { label: '导出', type: 'info' },
+  IMPORT: { label: '导入', type: 'primary' },
+  EXIT: { label: '退出', type: 'warning' },
+  FORCE: { label: '强退', type: 'danger' },
+  STATUS: { label: '更新状态', type: 'success' },
+  CLEAN: { label: '清空数据', type: 'danger' },
+  RECORD_EXCEPTIONS: { label: '记录异常', type: 'danger' },
+};
+
+// 操作类别
+const operatorTypeMap = {
+  OTHER: { label: '其它', type: 'info' },
+  MANAGE: { label: '后台用户', type: 'primary' },
+  MOBILE: { label: '手机端用户', type: 'success' },
+};
+
+const getBusinessTypeLabel = (businessType) => {
+  return businessTypeMap[businessType]?.label || '未知';
+};
+
+const getBusinessTypeTagType = (businessType) => {
+  return businessTypeMap[businessType]?.type || 'info';
+};
+
+const getOperatorTypeLabel = (operatorType) => {
+  return operatorTypeMap[operatorType]?.label || '未知';
+};
+
+const getOperatorTypeTagType = (operatorType) => {
+  return operatorTypeMap[operatorType]?.type || 'info';
+};
 </script>
 
 <style lang="scss" scoped>
