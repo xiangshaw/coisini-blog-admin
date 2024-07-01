@@ -2,7 +2,7 @@
   <div class="app-container">
     <!-- 工具条 -->
     <div class="tools-div">
-      <el-button type="success" :icon="Plus" @click="add()">添 加</el-button>
+      <el-button type="success" :icon="getIcon('Plus')" @click="add()">添 加</el-button>
     </div>
 
     <el-table
@@ -23,7 +23,9 @@
       <el-table-column prop="name" label="菜单名称" width="160"/>
       <el-table-column label="图标">
         <template #default="scope">
-          <i :class="scope.row.icon"/>
+          <component :is="getIconComponent(scope.row.icon)"
+                     class="icon-medium">
+          </component>
         </template>
       </el-table-column>
       <el-table-column prop="perms" label="权限标识" width="160"/>
@@ -33,32 +35,32 @@
       <!--<el-table-column label="状态" width="80">
         <template #default="scope">
           <el-switch
-              v-model="scope.row.status"
-              @change="switchStatus(scope.row)"
+            v-model="scope.row.status"
+            @change="switchStatus(scope.row)"
           />
         </template>
       </el-table-column>-->
       <el-table-column prop="createTime" label="创建时间" width="160"/>
       <el-table-column label="操作" width="180" align="center" fixed="right">
-        <template #default="scope">
+        <template v-slot:default="scope">
           <el-button
               v-if="scope.row.type !== 2"
               type="success"
-              :icon="Plus"
+              :icon="getIcon('Plus')"
               size="small"
               title="添加下级节点"
               @click="add(scope.row)"
           />
           <el-button
               type="primary"
-              :icon="Edit"
+              :icon="getIcon('Edit')"
               size="small"
               title="修改"
               @click="edit(scope.row)"
           />
           <el-button
               type="danger"
-              :icon="Delete"
+              :icon="getIcon('Delete')"
               size="small"
               title="删除"
               :disabled="scope.row.children.length > 0"
@@ -84,45 +86,49 @@
           <el-input v-model="menu.name"/>
         </el-form-item>
         <el-form-item v-if="menu.type !== 2" label="图标" prop="icon">
-          <el-select v-model="menu.icon" clearable>
-            <el-option v-for="item in iconList" :key="item.class" :label="item.class" :value="item.class">
-              <span style="float: left;">
-                <i :class="item.class"/>
-              </span>
-              <span style="padding-left: 6px;">{{ item.class }}</span>
+          <el-select v-model="menu.icon" clearable placeholder="请选择图标" collapse-tags popper-append-to-body>
+            <el-option
+                v-for="item in iconList"
+                :key="item.name"
+                :label="item.name"
+                :value="item.name"
+            >
+              <template #default="{ option }">
+                <component :is="item.component" class="icon-small" style="margin-right: 5px;"></component>
+                <span>{{ item.name }}</span>
+              </template>
             </el-option>
+            <!-- 在已选择框中显示图标预览 -->
+            <template #prefix>
+              <component v-if="menu.icon" :is="getIconComponent(menu.icon)" class="icon-small"></component>
+            </template>
           </el-select>
         </el-form-item>
         <el-form-item label="排序">
           <el-input-number v-model="menu.sortValue" controls-position="right" :min="0"/>
         </el-form-item>
-        <el-form-item prop="path">
+        <el-form-item prop="path" label="路由地址">
           <span slot="label">
-            <el-tooltip content="访问的路由地址，如：`user`" placement="top">
+            <el-tooltip content="访问的路由地址，如：`user/index`" placement="top">
               <i class="el-icon-question"/>
             </el-tooltip>
-            路由地址
           </span>
-          <el-input v-model="menu.path" placeholder="请输入路由地址"/>
+          <el-input v-model="menu.path" placeholder="请输入路由地址,如：admin"/>
         </el-form-item>
-        <el-form-item v-if="menu.type !== 0" prop="component">
+        <el-form-item v-if="menu.type !== 0" prop="component" label="组件路径">
           <span slot="label">
-            <el-tooltip content="访问的组件路径，如：`system/user/index`，默认在`views`目录下" placement="top">
+            <el-tooltip content="访问的组件路径，如：`admin/user/index`，默认在`views`目录下" placement="top">
               <i class="el-icon-question"/>
             </el-tooltip>
-            组件路径
           </span>
           <el-input v-model="menu.component" placeholder="请输入组件路径"/>
         </el-form-item>
-        <el-form-item v-if="menu.type === 2">
-          <el-input v-model="menu.perms" placeholder="请输入权限标识" maxlength="100"/>
-          <span slot="label">
-            <el-tooltip content="控制器中定义的权限字符，如：@PreAuthorize(hasAuthority('bnt.role.list'))"
-                        placement="top">
-              <i class="el-icon-question"/>
-            </el-tooltip>
-            权限字符
-          </span>
+        <el-form-item v-if="menu.type === 2" label="权限标识">
+          <el-tooltip content="控制器中定义的权限字符 role.list，例如：@PreAuthorize(hasAuthority('role.list'))"
+                      effect="customized"
+                      placement="top">
+            <el-input v-model="menu.perms" placeholder="请输入权限标识" maxlength="100"/>
+          </el-tooltip>
         </el-form-item>
         <el-form-item label="状态" prop="type">
           <el-radio-group v-model="menu.status">
@@ -132,21 +138,22 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" :icon="Close" @click="dialogVisible = false">取 消</el-button>
-        <el-button type="primary" :icon="Check" size="small" @click="saveOrUpdate()">确 定</el-button>
+        <el-button size="small" :icon="getIcon('Close')" @click="dialogVisible = false">取 消</el-button>
+        <el-button type="primary" :icon="getIcon('Check')" size="small" @click="saveOrUpdate()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
 </template>
 
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
-import {findNodes, saveMenu, updateById, removeById, updateStatus} from '@/api/menu'
-import {Check, Close, Delete, Edit, Plus} from '@element-plus/icons-vue'
-import {ElMessage, ElMessageBox} from "element-plus";
+import {ref, reactive, onMounted} from 'vue';
+import {findNodes, saveMenu, updateById, removeById, updateStatus} from '@/api/menu';
+import {iconList, getIcon} from "@/utils/IconList";
+import {ElMessage, ElMessageBox} from 'element-plus';
+
 
 // 初始化loading
-const loading = ref(true)
+const loading = ref(true);
 const svg = `
   <path class="path" d="
     M 30 15
@@ -158,9 +165,9 @@ const svg = `
   " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
 `;
 // 数据和状态
-const sysMenuList = ref([])
-const dialogTitle = ref('')
-const dialogVisible = ref(false)
+const sysMenuList = ref([]);
+const dialogTitle = ref('');
+const dialogVisible = ref(false);
 const menu = reactive({
   id: '',
   parentId: '',
@@ -173,44 +180,30 @@ const menu = reactive({
   sortValue: 1,
   status: false,
   parentName: ''
-})
-const typeDisabled = ref(false)
-const type0Disabled = ref(false)
-const type1Disabled = ref(false)
-const type2Disabled = ref(false)
-const saveBtnDisabled = ref(false)
-const iconList = [
-  {class: 'Notification'},
-  {class: 'Tools'},
-  {class: 'Custom'},
-  {class: 'Setting'},
-  {class: 'UserFilled'},
-  {class: 'Help'},
-  {class: 'Iphone'},
-  {class: 'ChatLineRound'},
-  {class: 'Operation'},
-  {class: 'DataLine'},
-  {class: 'Check'},
-  {class: 'Tickets'},
-  {class: 'Goods'},
-  {class: 'Remove'},
-  {class: 'warning'},
-  {class: 'QuestionFilled'},
-  {class: 'el-icon-info'}
-]
-
+});
+const typeDisabled = ref(false);
+const type0Disabled = ref(false);
+const type1Disabled = ref(false);
+const type2Disabled = ref(false);
+const saveBtnDisabled = ref(false);
 // 获取菜单数据
 const getMenuListData = async () => {
-  const response = await findNodes()
-  sysMenuList.value = response.data
-  loading.value = false
-}
+  const response = await findNodes();
+  sysMenuList.value = response.data;
+  loading.value = false;
+};
+
+// 获取图标组件
+const getIconComponent = (iconName) => {
+  const icon = iconList.find(item => item.name === iconName);
+  return icon ? icon.component : null;
+};
 
 // 切换状态
 const switchStatus = async (row) => {
-  await updateStatus(row.id, row.status)
-  await getMenuListData()
-}
+  await updateStatus(row.id, row.status);
+  await getMenuListData();
+};
 
 // 删除数据
 const removeDataById = async (row) => {
@@ -224,25 +217,25 @@ const removeDataById = async (row) => {
       }
   )
       .then(async () => {
-        //用户点击了确认
-        await removeById(row.id)
-        await getMenuListData()
-        ElMessage.success('操作成功')
+        // 用户点击了确认
+        await removeById(row.id);
+        await getMenuListData();
+        ElMessage.success('操作成功');
       })
       .catch(() => {
-        //用户点击了取消
+        // 用户点击了取消
         ElMessage({
           type: 'info',
           message: '取消删除',
-        })
-      })
-}
+        });
+      });
+};
 
 // 添加菜单
 const add = (row = null) => {
-  typeDisabled.value = false
-  dialogTitle.value = row ? '添加下级节点' : '添加目录节点'
-  dialogVisible.value = true
+  typeDisabled.value = false;
+  dialogTitle.value = row ? '添加下级节点' : '添加目录节点';
+  dialogVisible.value = true;
   Object.assign(menu, {
     id: '',
     parentId: row ? row.id : 0,
@@ -255,45 +248,45 @@ const add = (row = null) => {
     icon: '',
     sortValue: 1,
     status: false
-  })
-  type0Disabled.value = row && row.type === 0
-  type1Disabled.value = row && row.type === 1
-  type2Disabled.value = row && row.type === 2
-}
+  });
+  type0Disabled.value = row && row.type === 0;
+  type1Disabled.value = row && row.type === 1;
+  type2Disabled.value = row && row.type === 2;
+};
 
 // 编辑菜单
 const edit = (row) => {
-  dialogTitle.value = '修改菜单'
-  dialogVisible.value = true
-  Object.assign(menu, row)
-  typeDisabled.value = true
-}
+  dialogTitle.value = '修改菜单';
+  dialogVisible.value = true;
+  Object.assign(menu, row);
+  typeDisabled.value = true;
+};
 
 // 保存或更新菜单
 const saveOrUpdate = async () => {
   try {
-    saveBtnDisabled.value = true
+    saveBtnDisabled.value = true;
     if (menu.type === 0 && menu.parentId !== '0') {
-      menu.component = 'ParentView'
+      menu.component = 'ParentView';
     }
     if (!menu.id) {
-      await saveMenu(menu)
+      await saveMenu(menu);
     } else {
-      console.log("当前菜单：" + JSON.stringify(menu))
-      await updateById(menu)
+      console.log("当前菜单：" + JSON.stringify(menu));
+      await updateById(menu);
     }
-    ElMessage.success('操作成功')
-    dialogVisible.value = false
-    await getMenuListData()
+    ElMessage.success('操作成功');
+    dialogVisible.value = false;
+    await getMenuListData();
   } catch (error) {
-    ElMessage.error('Error saving or updating data:', error)
+    ElMessage.error('Error saving or updating data:', error);
   } finally {
-    saveBtnDisabled.value = false
+    saveBtnDisabled.value = false;
   }
-}
+};
 
 // 组件挂载时获取数据
-onMounted(getMenuListData)
+onMounted(getMenuListData);
 </script>
 
 <style>
@@ -312,4 +305,34 @@ onMounted(getMenuListData)
 .example-showcase .el-loading-mask {
   z-index: 9;
 }
+
+/*悬停提示 https://element-plus.org/zh-CN/component/tooltip.html*/
+/* 提示框背景颜色*/
+.el-popper.is-customized {
+  /* Set padding to ensure the height is 32px */
+  padding: 6px 12px;
+  background: linear-gradient(90deg, rgb(247, 114, 52), rgb(245, 49, 157));
+}
+/*提示框箭头颜色*/
+.el-popper.is-customized .el-popper__arrow::before {
+  background: linear-gradient(45deg, #14C9C9, #722ED1);
+  right: 0;
+}
+
+/* 自定义图标样式 */
+.icon-small {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-medium {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-large {
+  width: 32px;
+  height: 32px;
+}
+
 </style>

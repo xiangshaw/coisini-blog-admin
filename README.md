@@ -2,7 +2,7 @@
 
 
 ## 介绍
-> coisini-blog-admin 是基于 vue3 + element-plus 搭建的博客后台管理系统
+> coisini-blog-admin 是基于 vue3 + Element-Plus + Vite + pinia 搭建的博客后台管理系统
 
 ### 安装 yarn
 ```sh

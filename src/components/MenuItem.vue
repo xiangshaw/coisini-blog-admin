@@ -10,13 +10,13 @@
     </template>
     <!-- 递归渲染子菜单项 -->
     <MenuItem v-for="child in menu.children"
-              :key="`${child.path}`"
+              :key="child.path"
               :menu="child"
               :icon-map="iconMap"
               :default-icon="Compass"/>
   </el-sub-menu>
   <!-- 如果没有子菜单，显示 el-menu-item -->
-  <el-menu-item v-else :index="menu.path" @click="handleClick(`${menu.path}`)">
+  <el-menu-item v-else :index="menu.path" @click="handleClick(menu.path)">
     <el-icon>
       <component :is="iconMap[menu.meta.icon] || Compass"/>
     </el-icon>
@@ -41,6 +41,6 @@ const props = defineProps({
 // 检查菜单是否有子菜单
 const hasChildren = props.menu.children && props.menu.children.length > 0;
 const handleClick = (path) => {
-  console.log('当下点击的路径是这个Clicked path:', path);
+  console.log('当下点击的路径图标是这个icon:', path);
 }
 </script>

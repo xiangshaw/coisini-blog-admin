@@ -52,24 +52,35 @@ const router = createRouter({
 export default router
 */
 
-import { createRouter, createWebHistory } from 'vue-router';
-import { useTokenStore } from "@/stores/token";
-import { useUserInfoStore } from "@/stores/userInfo";
+import {createRouter, createWebHistory} from 'vue-router';
+import {useTokenStore} from "@/stores/token";
+import {useUserInfoStore} from "@/stores/userInfo";
 import LoginVue from '@/views/Login.vue';
 import LayoutVue from '@/layout/Layout.vue';
-import { userInfoService } from "@/api/user";
+import {userInfoService} from "@/api/user";
 
 // 初始化静态路由
 const staticRoutes = [
-    { path: '/login', component: LoginVue },
+    {
+        path: '/login',
+        component: LoginVue,
+        meta: {
+            title: '登录',
+            icon: 'login'
+        }
+    },
     {
         path: '/',
         component: LayoutVue,
-        redirect: '/dashboard/index',
+        redirect: 'dashboard/index',
         children: [
             {
-                path: '/dashboard/index',
-                component: () => import('@/views/dashboard/index.vue')
+                path: 'dashboard/index',
+                component: () => import('@/views/dashboard/index.vue'),
+                meta: {
+                    title: '首页',
+                    icon: 'PieChart'
+                },
             }
         ]
     }
@@ -85,18 +96,13 @@ const viewModules = import.meta.glob('/src/views/**/*.vue');
 
 // 动态加载视图组件
 function loadView(viewPath) {
-    // 如果 component 为 'Layout'，则跳过路径检查
-    if (viewPath === 'Layout') {
-        // 这里返回的就是你的主布局组件
+    if (viewPath === 'Layout' || viewPath === 'ParentView') {
         return LayoutVue;
     }
-    // 获取相对于 src/views 的路径
     const fullPath = `/src/views/${viewPath}.vue`;
-    // 检查路径是否存在
     if (viewModules[fullPath]) {
         return viewModules[fullPath];
     } else {
-        // 处理路径不存在的情况，可以返回一个默认组件或者报错
         console.error(`Component not found: ${fullPath}`);
         return () => import('@/views/dashboard/index.vue');
     }
@@ -105,7 +111,19 @@ function loadView(viewPath) {
 // 生成动态路由
 function generateRoutes(menuList) {
     const routes = [];
+    // 添加静态路由
+    staticRoutes.forEach(route => {
+        routes.push({
+            path: route.path,
+            name: route.name,
+            component: route.component,
+            meta: route.meta,
+            // 如果有子路由，也要添加进来
+            children: route.children
+        });
+    });
 
+    // 添加动态
     menuList.forEach(menu => {
         const route = {
             path: `/${menu.path}`,
@@ -121,7 +139,7 @@ function generateRoutes(menuList) {
         if (menu.children && menu.children.length > 0) {
             menu.children.forEach(child => {
                 route.children.push({
-                    path: `/${child.path}`,  // 将子路由的 path 改为相对于根路径
+                    path: `${child.path}`,
                     name: child.name,
                     component: loadView(child.component),
                     meta: {
@@ -129,14 +147,9 @@ function generateRoutes(menuList) {
                         icon: child.meta.icon
                     }
                 });
-                console.log("当前的childPath：" + child.path);
-                console.log("当前的child.component：" + child.component);
-                console.log("当前的loadView(child.component)：" + loadView(child.component));
             });
         }
-
         routes.push(route);
-        console.log("当前获取到的route：" + JSON.stringify(route));
     });
 
     return routes;
@@ -145,44 +158,38 @@ function generateRoutes(menuList) {
 // 路由守卫，用于动态添加路由
 router.beforeEach(async (to, from, next) => {
     const tokenStore = useTokenStore();
-    // 如果用户已登录，并且路由中没有动态添加过路由
-    if (tokenStore.token && router.options.routes.length === 2) {
+    const userInfoStore = useUserInfoStore();
+
+    if (tokenStore.token && !userInfoStore.routeState.routesLoaded) {
         try {
-            const userInfoStore = useUserInfoStore();
             const userInfoResult = await userInfoService();
             userInfoStore.setInfo(userInfoResult.data);
             userInfoStore.setUserButton(userInfoResult.data.userButtonList);
             const userMenuList = userInfoResult.data.userMenuList;
             const dynamicRoutes = generateRoutes(userMenuList);
-            // 动态添加路由
             dynamicRoutes.forEach(route => {
                 router.addRoute(route);
             });
-            // 完成添加后，跳转到首页或者当前路由
-            if (to.path === '/login') {
-                // 如果当前路径是登录页，则跳转到首页
-                next('/');
+            userInfoStore.setRoutesLoaded(true);
+            // 避免无限循环
+            if (to.matched.length === 0) {
+                next({...to, replace: true});
             } else {
-                // 否则继续跳转到目标路由
                 next();
             }
         } catch (error) {
             console.error('Failed to fetch user info:', error);
-            // 跳转到登录页重新登录
-            // 清除token
             tokenStore.removeToken();
-            // 清除用户信息
-            useUserInfoStore().removeInfo();
-            useUserInfoStore().removeUserButton();
-            useUserInfoStore().removeUserMenu();
+            userInfoStore.removeInfo();
+            userInfoStore.removeUserButton();
+            userInfoStore.removeUserMenu();
+            userInfoStore.setRoutesLoaded(false);
             next('/login');
         }
     } else {
-        // 如果未登录或者已经添加过动态路由，则直接放行
         next();
     }
 });
 
 export default router;
-
 

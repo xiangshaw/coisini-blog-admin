@@ -36,10 +36,18 @@ export const useUserInfoStore = defineStore('userInfo', () => {
         userMenu.value = []
     }
 
+    // 4. 定义路由是否加载
+    const routeState  = {routesLoaded: false}
+    // 4.1.定义修改路由是否加载的方法
+    const setRoutesLoaded = (newRoutesLoaded) => {
+        routeState.routesLoaded = newRoutesLoaded
+    }
+
     return {
         info, setInfo, removeInfo,
         userButton, setUserButton, removeUserButton,
-        userMenu, setUserMenu, removeUserMenu
+        userMenu, setUserMenu, removeUserMenu,
+        routeState, setRoutesLoaded
     }
 }, {
     persist: true

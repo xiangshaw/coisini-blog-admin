@@ -1,19 +1,11 @@
 <script setup>
-import {
-  Management,
-  Promotion,
-  UserFilled,
-  User,
-  Crop,
-  EditPen,
-  SwitchButton,
-  CaretBottom,
-  Postcard,
-  Memo,
-  Compass,
-  Odometer
-} from '@element-plus/icons-vue';
+import {iconList,getIcon} from "@/utils/IconList";
 import avatar from '@/assets/default.png';
+// 动态生成 iconMap
+const iconMap = iconList.reduce((map, icon) => {
+  map[icon.name] = icon.component;
+  return map;
+}, {});
 
 // 获取用户信息
 import {userInfoService} from '@/api/user';
@@ -56,22 +48,6 @@ const handleCommand = (command) => {
   } else {
     router.push('/user/' + command);
   }
-}
-
-// 图标映射
-const iconMap = {
-  "Management": Management,
-  "Promotion": Promotion,
-  "UserFilled": UserFilled,
-  "User": User,
-  "Crop": Crop,
-  "EditPen": EditPen,
-  "SwitchButton": SwitchButton,
-  "CaretBottom": CaretBottom,
-  "Postcard": Postcard,
-  "Memo": Memo,
-  "Compass": Compass,
-  "Odometer": Odometer
 }
 </script>
 
@@ -122,10 +98,10 @@ const iconMap = {
           <template #dropdown>
             <!--下拉菜单-->
             <el-dropdown-menu>
-              <el-dropdown-item command="UserInfo" :icon="User">基本资料</el-dropdown-item>
-              <el-dropdown-item command="UserAvatar" :icon="Crop">更换头像</el-dropdown-item>
-              <el-dropdown-item command="UserResetPassword" :icon="EditPen">重置密码</el-dropdown-item>
-              <el-dropdown-item command="logout" :icon="SwitchButton">退出登录</el-dropdown-item>
+              <el-dropdown-item command="UserInfo" :icon="getIcon('User')">基本资料</el-dropdown-item>
+              <el-dropdown-item command="UserAvatar" :icon="getIcon('Crop')">更换头像</el-dropdown-item>
+              <el-dropdown-item command="UserResetPassword" :icon="getIcon('EditPen')">重置密码</el-dropdown-item>
+              <el-dropdown-item command="logout" :icon="getIcon('SwitchButton')">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
