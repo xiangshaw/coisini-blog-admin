@@ -76,7 +76,7 @@
         </template>
       </el-table-column>
       <el-table-column label="错误消息" prop="errorMsg"></el-table-column>
-      <el-table-column label="时间" prop="createTime"></el-table-column>
+      <el-table-column label="时间" prop="createTime" sortable width="115"></el-table-column>
       <el-table-column label="操作" fixed="right" align="center" width="100">
         <template #default="{ row }">
           <el-button :icon="More" circle plain type="primary" @click="loginLogDetailsEcho(row)"></el-button>

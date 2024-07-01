@@ -54,7 +54,7 @@
       <el-table-column label="IP来源" prop="loginIpSource"></el-table-column>
       <el-table-column label="IP归属地" prop="loginIpCity"></el-table-column>
       <el-table-column label="返回消息" prop="msg"></el-table-column>
-      <el-table-column label="登录时间" prop="createTime"></el-table-column>
+      <el-table-column label="登录时间" prop="createTime" sortable></el-table-column>
       <el-table-column label="操作" fixed="right" align="center" width="100">
         <template #default="{ row }">
           <el-button :icon="More" circle plain type="primary" @click="loginLogDetailsEcho(row)"></el-button>

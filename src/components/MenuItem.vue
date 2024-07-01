@@ -16,7 +16,7 @@
               :default-icon="Compass"/>
   </el-sub-menu>
   <!-- 如果没有子菜单，显示 el-menu-item -->
-  <el-menu-item v-else :index="menu.path" @click="handleClick(menu.path)">
+  <el-menu-item v-else :index="menu.path">
     <el-icon>
       <component :is="iconMap[menu.meta.icon] || Compass"/>
     </el-icon>
@@ -40,7 +40,4 @@ const props = defineProps({
 
 // 检查菜单是否有子菜单
 const hasChildren = props.menu.children && props.menu.children.length > 0;
-const handleClick = (path) => {
-  console.log('当下点击的路径图标是这个icon:', path);
-}
 </script>

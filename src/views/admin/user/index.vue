@@ -65,7 +65,9 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" prop="createTime" width="115"></el-table-column>
+      <el-table-column label="登录时间" prop="loginTime" width="115" sortable></el-table-column>
+      <el-table-column label="创建时间" prop="createTime" width="115" sortable></el-table-column>
+      <el-table-column label="更新时间" prop="updateTime" width="115" sortable></el-table-column>
       <el-table-column label="操作" fixed="right" align="center" width="120">
         <template #default="{ row }">
           <el-button :icon="Edit" circle plain type="primary" size="small"
@@ -160,7 +162,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, nextTick} from 'vue';
+import {ref, onMounted} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
 import {Delete, Search, Edit, Tickets} from '@element-plus/icons-vue';
 import {
@@ -168,7 +170,7 @@ import {
   userAddService, userAssignRoleService,
   userBatchDeleteService,
   userDeleteService,
-  userStatusUpdateService, userUpdatesService
+  userUpdatesService
 } from '@/api/user';
 
 // 初始化loading

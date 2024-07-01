@@ -1,63 +1,13 @@
-/*
-// 导入vue-router
-import { createRouter, createWebHistory } from 'vue-router'
-// 导入组件
-import LoginVue from '@/views/Login.vue'
-import LayoutVue from '@/layout/Layout.vue'
-
-import dashboard from '@/views/dashboard/index.vue'
-import category from '@/views/admin/category/index.vue'
-import article from '@/views/admin/article/index.vue'
-import UserInfoVue from '@/views/admin/user/UserInfo.vue'
-import UserAvatarVUe from '@/views/admin/user/UserAvatar.vue'
-import UserResetPasswordVue from '@/views/admin/user/UserResetPassword.vue'
-import MenuVue from '@/views/admin/menu/index.vue'
-import LoginLogVue from '@/views/admin/loginLog/index.vue'
-import OperLogVue from '@/views/admin/operLog/index.vue'
-import RoleVue from '@/views/admin/role/index.vue'
-import UserVue from '@/views/admin/user/index.vue'
-
-// 定义路由关系
-const routes = [
-    { path: '/login', component: LoginVue },
-    {
-        path: '/',
-        component: LayoutVue,
-        // 重定向
-        redirect: '/dashboard/index',
-        // 子路由
-        children: [
-            { path: '/dashboard/index', component: dashboard },
-            { path: '/category/index', component: category },
-            { path: '/article/index', component: article },
-            { path: '/user/info', component: UserInfoVue },
-            { path: '/user/avatar', component: UserAvatarVUe },
-            { path: '/user/resetPassword', component: UserResetPasswordVue },
-            { path: '/menu/index', component: MenuVue },
-            { path: '/log/loginLog/index', component: LoginLogVue },
-            { path: '/log/operLog/index', component: OperLogVue },
-            { path: '/role/index', component: RoleVue },
-            { path: '/user/index', component: UserVue }
-
-        ]
-    }
-]
-
-// 创建路由器
-const router = createRouter({
-    history: createWebHistory(),
-    routes: routes
-});
-
-export default router
-*/
-
 import {createRouter, createWebHistory} from 'vue-router';
 import {useTokenStore} from "@/stores/token";
 import {useUserInfoStore} from "@/stores/userInfo";
 import LoginVue from '@/views/Login.vue';
 import LayoutVue from '@/layout/Layout.vue';
 import {userInfoService} from "@/api/user";
+// 导入 NProgress模块（进度条）
+import NProgress from 'nprogress';
+// 进度条样式 右上角圈圈
+import 'nprogress/nprogress.css';
 
 // 初始化静态路由
 const staticRoutes = [
@@ -157,6 +107,8 @@ function generateRoutes(menuList) {
 
 // 路由守卫，用于动态添加路由
 router.beforeEach(async (to, from, next) => {
+    // 开启进度条
+    NProgress.start()
     const tokenStore = useTokenStore();
     const userInfoStore = useUserInfoStore();
 
@@ -191,5 +143,10 @@ router.beforeEach(async (to, from, next) => {
     }
 });
 
+// 全局后置钩子
+router.afterEach((to, from) => {
+    // 关闭进度条
+    NProgress.done()
+})
 export default router;
 

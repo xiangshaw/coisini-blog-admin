@@ -31,7 +31,7 @@
       <el-table-column prop="perms" label="权限标识" width="160"/>
       <el-table-column prop="path" label="路由地址" width="120"/>
       <el-table-column prop="component" label="组件路径" width="160"/>
-      <el-table-column prop="sortValue" label="排序" width="60"/>
+      <el-table-column prop="sortValue" label="排序" sortable width="80"/>
       <!--<el-table-column label="状态" width="80">
         <template #default="scope">
           <el-switch
@@ -40,7 +40,7 @@
           />
         </template>
       </el-table-column>-->
-      <el-table-column prop="createTime" label="创建时间" width="160"/>
+      <el-table-column prop="createTime" label="创建时间" sortable width="160"/>
       <el-table-column label="操作" width="180" align="center" fixed="right">
         <template v-slot:default="scope">
           <el-button
@@ -113,7 +113,7 @@
               <i class="el-icon-question"/>
             </el-tooltip>
           </span>
-          <el-input v-model="menu.path" placeholder="请输入路由地址,如：admin"/>
+          <el-input v-model="menu.path" placeholder="请输入路由地址,如：admin/index"/>
         </el-form-item>
         <el-form-item v-if="menu.type !== 0" prop="component" label="组件路径">
           <span slot="label">
@@ -243,7 +243,7 @@ const add = (row = null) => {
     name: '',
     type: row ? (row.type === 0 ? 1 : 2) : 0,
     path: '',
-    component: row ? (row.type === 0 ? '' : 'ParentView') : 'Layout',
+    component: row ? (row.type === 0 ? '' : '') : 'Layout',
     perms: '',
     icon: '',
     sortValue: 1,
