@@ -117,7 +117,7 @@
                      name="file"
                      :headers="{'Authorization':tokenStore.token}"
                      :on-success=uploadSuccess>
-            <img v-if="articleModel.coverImg" :src="articleModel.coverImg" class="avatar"/>
+            <img v-if="articleModel.coverImg" :src="articleModel.coverImg" class="avatar" alt="未找到"/>
             <el-icon v-else class="avatar-uploader-icon">
               <Plus/>
             </el-icon>
@@ -226,13 +226,9 @@ const toolbar = ref([
   // 缩进
   [{indent: "-1"}, {indent: "+1"}],
   // 文本方向
-  [{'direction': 'rtl'}]
-      // 插入链接
-      ['link'],
-  // 插入图片
-  ['image'],
-  // 插入视频
-  ['video'],
+  [{'direction': 'rtl'}],
+  // 插入链接、图片、视频
+  ['link','image','video'],
 
 ])
 
@@ -241,7 +237,7 @@ const options = reactive({
   modules: {
     ImageUploader: {
       upload(file) {
-        return new Promise(async (resolve, reject) => {
+        return new Promise(async (resolve) => {
           // 上传服务器
           let formdata = new FormData();
           formdata.append("file", await file);
