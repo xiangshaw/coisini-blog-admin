@@ -91,7 +91,7 @@
         style="margin-top: 20px; justify-content: flex-end"
     />
     <!-- 抽屉 -->
-    <el-drawer v-model="articleVisibleDrawer" title="添加文章" direction="rtl" size="50%">
+    <el-drawer v-model="articleVisibleDrawer" title="添加文章" direction="rtl" size="100%">
       <!-- 添加文章表单 -->
       <el-form :model="articleModel" label-width="100px">
         <el-form-item label="文章标题">
@@ -126,7 +126,7 @@
         <el-form-item label="文章内容">
           <div class="editor">
             <quill-editor
-                theme="snow"
+                :options="options"
                 v-model:content="articleModel.content"
                 contentType="html">
             </quill-editor>
@@ -142,8 +142,8 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import {ref, watch, onMounted, reactive} from 'vue';
+import {ElMessage, ElMessageBox} from 'element-plus';
 import {
   Edit,
   Delete,
@@ -157,9 +157,114 @@ import {
   articleListService,
   articleUpdateService,
 } from '@/api/article.js';
-import { QuillEditor } from '@vueup/vue-quill';
+
+import {useTokenStore} from '@/stores/token';
+
+// 编辑器
+import {Quill, QuillEditor} from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
-import { useTokenStore } from '@/stores/token';
+import '@vueup/vue-quill/dist/vue-quill.bubble.css';
+// 处理图像上传到服务器 https://github.com/NoelOConnell/quill-image-uploader
+import ImageUploader from 'quill-image-uploader';
+import 'quill-image-uploader/dist/quill.imageUploader.min.css';
+// 调整图片大小
+import BlotFormatter from "quill-blot-formatter";
+import axios from "axios";
+//注册
+if (!Quill.imports["modules/ImageUploader"]) {
+  Quill.register("modules/ImageUploader", ImageUploader);
+}
+if (!Quill.imports["modules/BlotFormatter"]) {
+  Quill.register("modules/BlotFormatter", BlotFormatter);
+}
+import '@/assets/css/quillEditor.css'
+
+
+const fonts = [
+  "Microsoft-YaHei",
+  "SimSun",
+  "SimHei",
+  "KaiTi",
+  "FangSong",
+  "Arial",
+  "Times-New-Roman",
+  "sans-serif",
+];
+const sizes = [false, "16px", "18px", "20px", "22px", "26px", "28px", "30px"];
+const Size = Quill.import("formats/size");
+Size.whitelist = sizes;
+const Font = Quill.import("formats/font");
+Font.whitelist = fonts;
+Quill.register(Font, true);
+
+
+// 自定义工具栏
+const toolbar = ref([
+  // 字体大小
+  //[{size: ["small", false, "large", "huge"]}],
+  [{size: sizes}],
+  // 字体种类
+  [{font: fonts}],
+  // 标题
+  [{header: [1, 2, 3, 4, 5, 6, false]}],
+  // 字体颜色、字体背景颜色
+  [{color: []}, {background: []}],
+  // 对齐方式
+  [{align: []}],
+  // 清除文本格式
+  ["clean"],
+  // 加粗、斜体、下划线、删除线
+  ["bold", "italic", "underline", "strike"],
+  // 引用、代码块
+  ["blockquote", "code-block"],
+  // 1、2 级标题
+  [{header: 1}, {header: 2}],
+  // 有序、无序列表
+  [{list: "ordered"}, {list: "bullet"}],
+  // 上标、下标
+  [{script: "sub"}, {script: "super"}],
+  // 缩进
+  [{indent: "-1"}, {indent: "+1"}],
+  // 文本方向
+  [{'direction': 'rtl'}]
+      // 插入链接
+      ['link'],
+  // 插入图片
+  ['image'],
+  // 插入视频
+  ['video'],
+
+])
+
+// 图像上传到服务器
+const options = reactive({
+  modules: {
+    ImageUploader: {
+      upload(file) {
+        return new Promise(async (resolve, reject) => {
+          // 上传服务器
+          let formdata = new FormData();
+          formdata.append("file", await file);
+          axios({
+            url: '/coisiniBlogApi/api/v1/file/admin/upload',
+            method: "post",
+            headers: {'Authorization': tokenStore.token},
+            data: formdata,
+          }).then((res) => {
+            resolve(res.data.data);
+          });
+        });
+      },
+    },
+    // 图片大小位置设置
+    BlotFormatter,
+    // 配置工具栏
+    toolbar: toolbar.value
+  },
+  placeholder: '请输入内容...',
+  // 配置编辑器主题 snow、bubble
+  theme: 'snow',
+});
 
 // 初始化loading
 const loading = ref(true);
@@ -271,7 +376,7 @@ const getArticleList = async () => {
   try {
     let result = await articleListService(articleSearchObj.value);
     articles.value = result.data.records;
-    total.value = result.data.total;
+    total.value =result.data.total;
   } catch (error) {
     console.error('Error fetching articles:', error);
   } finally {
@@ -306,17 +411,19 @@ const addArticle = async (state) => {
     if (articleModel.value.id) {
       // 如果有id，调用更新方法
       let result = await articleUpdateService(articleModel.value);
+      // 隐藏抽屉
+      articleVisibleDrawer.value = false;
       ElMessage.success(result.message ? result.message : '文章更新成功');
     } else {
       // 否则调用新增方法
       let result = await articleAddService(articleModel.value);
+      // 隐藏抽屉
+      articleVisibleDrawer.value = false;
       ElMessage.success(result.message ? result.message : '文章发布成功');
     }
   } catch (error) {
     ElMessage.error('操作失败，请重试');
   } finally {
-    // 隐藏抽屉
-    articleVisibleDrawer.value = false;
     // 刷新获取文章
     await getArticleList();
   }
@@ -404,7 +511,7 @@ const confirmDeleteArticle = (row) => {
     text-align: center;
   }
 
-  /* 抽屉样式 */
+  /* 抽屉样式  文件上传样式*/
   .avatar-uploader {
     /* 使用 :deep() 确保样式穿透到子组件 */
     :deep(.avatar) {
@@ -437,12 +544,10 @@ const confirmDeleteArticle = (row) => {
 
   .editor {
     width: 100%;
-
     /* 深度穿透 Quill 编辑器样式 */
     :deep(.ql-editor) {
-      min-height: 200px;
+      min-height: 300px;
     }
   }
 }
-
 </style>
