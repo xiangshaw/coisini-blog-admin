@@ -64,12 +64,28 @@
         :data="articles" style="width: 100%">
       <el-table-column label="文章标题" width="150" prop="title"></el-table-column>
       <el-table-column label="分类" prop="categoryId"></el-table-column>
+      <el-table-column label="标签" prop="tagName">
+        <template #default="{ row }">
+          <template v-for="(tagName, index) in row.tagName" :key="index">
+            <el-tag
+                :style="{ backgroundColor: getBackgroundColor(row.tagColor, index),
+                color: getTextColor(getBackgroundColor(row.tagColor, index)),
+                fontSize: '14px',
+                // 增加水平间距
+                marginRight: '8px',
+                // 增加垂直间距
+            marginBottom: '4px'}">
+              {{ tagName }}
+            </el-tag>
+          </template>
+        </template>
+      </el-table-column>
       <el-table-column label="发表时间" prop="createTime" sortable></el-table-column>
       <el-table-column label="更新时间" prop="updateTime" sortable></el-table-column>
       <el-table-column label="状态" prop="state"></el-table-column>
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
-          <el-button :icon="Edit" circle plain type="primary" @click="updateArticleEcho(row)"></el-button>
+          <el-button :icon="Edit" circle plain type="info" @click="updateArticleEcho(row)"></el-button>
           <el-button :icon="Delete" circle plain type="danger" @click="confirmDeleteArticle(row)"></el-button>
         </template>
       </el-table-column>
@@ -102,6 +118,47 @@
             <el-option v-for="c in articleCategory" :key="c.id" :label="c.categoryName" :value="c.categoryName">
             </el-option>
           </el-select>
+        </el-form-item>
+        <el-form-item label="文章标签">
+          <!-- 包裹按钮和标签选择区域 -->
+          <div class="container">
+            <!-- 第一行：按钮和输入框 -->
+            <div class="flex gap-2">
+              <el-tag
+                  v-for="tag in selectedTags"
+                  :key="tag.tagName"
+                  closable
+                  :disable-transitions="false"
+                  @close="handleTagClose(tag)"
+              >
+                {{ tag.tagName }}
+              </el-tag>
+              <el-input
+                  v-if="inputVisible"
+                  ref="InputRef"
+                  v-model="inputValue"
+                  class="w-20"
+                  size="small"
+                  @keyup.enter="handleInputConfirm"
+                  @blur="handleInputConfirm"
+                  style="width: 50%"
+              />
+              <el-button v-else class="button-new-tag" size="small" @click="showInput">
+                + 添加
+              </el-button>
+            </div>
+            <!-- 第二行：标签选择 -->
+            <div class="flex gap-2 flex-wrap mt-4">
+              <el-check-tag
+                  v-for="tag in tagOptions"
+                  :key="tag.id"
+                  :checked="isSelected(tag)"
+                  @change="toggleTag(tag)"
+              >
+                {{ tag.tagName }}
+              </el-check-tag>
+            </div>
+          </div>
         </el-form-item>
         <!--
            auto-upload: 是否自动上传
@@ -142,14 +199,9 @@
 </template>
 
 <script setup>
-import {ref, watch, onMounted, reactive} from 'vue';
+import {nextTick, onMounted, reactive, ref, watch} from 'vue';
 import {ElMessage, ElMessageBox} from 'element-plus';
-import {
-  Edit,
-  Delete,
-  Search,
-  Plus,
-} from '@element-plus/icons-vue';
+import {Delete, Edit, Plus, Search,} from '@element-plus/icons-vue';
 import {
   articleAddService,
   articleCategoryGetService,
@@ -158,9 +210,154 @@ import {
   articleUpdateService,
 } from '@/api/article.js';
 
-import {useTokenStore} from '@/stores/token';
+// 标签模块
+// 计算相对亮度
+const getBrightness = (color) => {
+  if (!color) return 0;
+  const rgb = parseInt(color.slice(1), 16);
+  const r = (rgb >> 16) & 0xff;
+  const g = (rgb >> 8) & 0xff;
+  const b = (rgb >> 0) & 0xff;
+  return 0.299 * r + 0.587 * g + 0.114 * b;
+};
 
-// 编辑器
+// 根据颜色列表获取背景颜色
+const getBackgroundColor = (colorList, index) => {
+  if (!colorList) return '#89E9E0';
+  const colors = colorList.split(',');
+  return colors[index % colors.length].trim();
+};
+
+// 根据背景颜色获取合适的文本颜色
+const getTextColor = (bgColor) => {
+  const brightness = getBrightness(bgColor);
+  return brightness > 186 ? '#000' : '#fff';
+};
+
+// 标签列表
+let tagOptions = ref([]);
+// 已选标签
+let selectedTags = ref([]);
+
+// 新标签输入框，默认不可见
+const inputVisible = ref(false);
+// 输入框的值
+const inputValue = ref('');
+const InputRef = ref(null);
+
+// 判断标签是否被选择
+const isSelected = (tag) => {
+  return selectedTags.value.some(selectedTag => selectedTag.id === tag.id);
+};
+
+// 切换标签选择状态
+const toggleTag = (tag) => {
+  const index = selectedTags.value.findIndex(selectedTag => selectedTag.id === tag.id);
+  if (index >= 0) {
+    // 取消选择
+    selectedTags.value.splice(index, 1);
+  } else {
+    // 选择
+    selectedTags.value.push(tag);
+  }
+  // 另一种方式
+/*  if (isSelected(tag)) {
+    selectedTags.value = selectedTags.value.filter(selectedTag => selectedTag.id !== tag.id);
+  } else {
+    selectedTags.value.push(tag);
+  }*/
+};
+
+// 显示新标签输入框
+const showInput = () => {
+  // 显示输入框
+  inputVisible.value = true;
+  nextTick(() => {
+    // 聚焦输入框
+    InputRef.value?.focus();
+  });
+};
+
+// 处理新标签添加
+const handleInputConfirm = async () => {
+  const inputValueTrimmed = inputValue.value.trim();
+
+  if (inputValueTrimmed) {
+    // 检查标签是否已经存在
+    const isTagExists = tagOptions.value.some(tag => tag.tagName === inputValueTrimmed);
+    if (!isTagExists) {
+      // 创建新标签对象
+      const newTag = {
+        id: generateRandomId(),
+        tagName: inputValueTrimmed,
+        color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      };
+      // 调用添加标签的接口
+      await tagAddService(newTag);
+      // 将新标签添加到标签选项列表中
+      tagOptions.value.push(newTag);
+      // 将新标签添加到已选标签列表中
+      selectedTags.value.push(newTag);
+    } else {
+      // 如果标签已存在，可以提示用户或者自动选择已存在的标签
+      const existingTag = tagOptions.value.find(tag => tag.tagName === inputValueTrimmed);
+      if (existingTag && !selectedTags.value.includes(existingTag)) {
+        selectedTags.value.push(existingTag);
+      }
+    }
+  }
+  // 清空输入框并隐藏
+  inputValue.value = '';
+  inputVisible.value = false;
+};
+
+// 点击标签旁边的 x 按钮时调用此函数删除标签
+const handleTagClose = async (tag) => {
+  ElMessageBox.confirm(
+      '你确认删除该标签信息吗？',
+      '温馨提示',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+      .then(async () => {
+        //用户点击了确认
+        // 调用标签删除接口
+        await tagDeleteService(tag.id);
+        // 在本地移除标签
+        const index = selectedTags.value.indexOf(tag);
+        if (index !== -1) {
+          selectedTags.value.splice(index, 1);
+        }
+        await getAllTag();
+      })
+      .catch(() => {
+            //用户点击了取消
+            ElMessage({
+              type: 'info',
+              message: '取消删除',
+            })
+          }
+      )
+};
+
+// 生成随机id
+const generateRandomId = () => {
+  // 最大值
+  const maxLongValue = BigInt("9223372036854775807");
+  // 当前时间戳
+  const timestamp = BigInt(Date.now());
+  // 随机数
+  const randomNum = BigInt(Math.floor(Math.random() * Number(maxLongValue)));
+  // 确保在范围内
+  const uniqueId = (timestamp * randomNum) % maxLongValue;
+  // 转为字符串
+  return uniqueId.toString();
+};
+
+import {useTokenStore} from '@/stores/token';
+// 编辑器 模块
 import {Quill, QuillEditor} from '@vueup/vue-quill';
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import '@vueup/vue-quill/dist/vue-quill.bubble.css';
@@ -170,6 +367,8 @@ import 'quill-image-uploader/dist/quill.imageUploader.min.css';
 // 调整图片大小
 import BlotFormatter from "quill-blot-formatter";
 import axios from "axios";
+import '@/assets/css/quillEditor.css'
+import {getTagAllService, tagAddService, tagDeleteService} from "@/api/tag";
 //注册
 if (!Quill.imports["modules/ImageUploader"]) {
   Quill.register("modules/ImageUploader", ImageUploader);
@@ -177,8 +376,6 @@ if (!Quill.imports["modules/ImageUploader"]) {
 if (!Quill.imports["modules/BlotFormatter"]) {
   Quill.register("modules/BlotFormatter", BlotFormatter);
 }
-import '@/assets/css/quillEditor.css'
-
 
 const fonts = [
   "Microsoft-YaHei",
@@ -196,7 +393,6 @@ Size.whitelist = sizes;
 const Font = Quill.import("formats/font");
 Font.whitelist = fonts;
 Quill.register(Font, true);
-
 
 // 自定义工具栏
 const toolbar = ref([
@@ -228,7 +424,7 @@ const toolbar = ref([
   // 文本方向
   [{'direction': 'rtl'}],
   // 插入链接、图片、视频
-  ['link','image','video'],
+  ['link', 'image', 'video'],
 
 ])
 
@@ -350,6 +546,7 @@ const handleSizeChange = (size) => {
 // 页面初始化时加载
 onMounted(() => {
   getArticleCategoryList();
+  getAllTag();
 });
 
 /**
@@ -363,6 +560,13 @@ const getArticleCategoryList = async () => {
     console.error('Error fetching article categories:', error);
   }
 };
+/**
+ * 发布文章获取所有标签
+ */
+const getAllTag = async () => {
+  let result = await getTagAllService();
+  tagOptions.value = result.data
+};
 
 /**
  * 获取文章列表
@@ -372,7 +576,7 @@ const getArticleList = async () => {
   try {
     let result = await articleListService(articleSearchObj.value);
     articles.value = result.data.records;
-    total.value =result.data.total;
+    total.value = result.data.total;
   } catch (error) {
     console.error('Error fetching articles:', error);
   } finally {
@@ -396,6 +600,8 @@ const articleModel = ref({
   id: '',
   title: '',
   categoryId: '',
+  tagId: '',
+  tagIds: [],
   coverImg: '',
   content: '',
   state: '',
@@ -405,12 +611,14 @@ const addArticle = async (state) => {
   articleModel.value.state = state;
   try {
     if (articleModel.value.id) {
+      articleModel.value.tagIds = selectedTags.value.map(tag => tag.id);
       // 如果有id，调用更新方法
       let result = await articleUpdateService(articleModel.value);
       // 隐藏抽屉
       articleVisibleDrawer.value = false;
       ElMessage.success(result.message ? result.message : '文章更新成功');
     } else {
+      articleModel.value.tagIds = selectedTags.value.map(tag => tag.id);
       // 否则调用新增方法
       let result = await articleAddService(articleModel.value);
       // 隐藏抽屉
@@ -428,14 +636,23 @@ const addArticle = async (state) => {
 // 清空抽屉
 const clearDrawer = () => {
   articleModel.value = {
-    id: '', // 重置id
+    id: '',
     title: '',
     categoryId: '',
+    tagId: '',
+    tagIds: [],
     coverImg: '',
     content: '<span></span>',
     state: '',
   };
+  // 清空选中的标签
+  selectedTags.value = [];
+  // 重置标签输入框
+  inputValue.value = '';
+  inputVisible.value = false;
+  // 重置抽屉可见状态
   articleVisibleDrawer.value = true;
+  getAllTag();
 };
 
 // 打开编辑抽屉
@@ -446,8 +663,22 @@ const updateArticleEcho = (row) => {
   articleModel.value.content = row.content;
   articleModel.value.coverImg = row.coverImg;
   articleModel.value.state = row.state;
-
   articleVisibleDrawer.value = true;
+
+  // 清空已选标签
+  selectedTags.value = [];
+
+  // 检查是否存在有效的 tagId 和 tagName
+  if (row.tagId && row.tagName && Array.isArray(row.tagName) && row.tagName.length > 0) {
+    // 将 tagId 字符串转换为数组
+    const tagIds = row.tagId.split(',');
+
+    // 将 tagId 与 tagName 对应生成标签对象
+    selectedTags.value = tagIds.map((id, index) => ({
+      id,
+      tagName: row.tagName[index] || ''
+    }));
+  }
 };
 
 // 删除文章
@@ -545,5 +776,51 @@ const confirmDeleteArticle = (row) => {
       min-height: 300px;
     }
   }
+
+  /*文章标签样式*/
+  .el-drawer__wrapper {
+    width: 50%;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    /* 行间距 */
+    gap: 10px;
+  }
+
+  .flex {
+    display: flex;
+    align-items: center;
+  }
+
+  .gap-2 {
+    gap: 8px;
+  }
+
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
+
+  .mt-4 {
+    margin-top: 10px;
+  }
+
+  .button-new-tag {
+    margin-left: 10px;
+    background-color: #409eff;
+    color: #fff;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .page-container {
+    padding: 20px;
+  }
 }
+
 </style>

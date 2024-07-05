@@ -52,7 +52,7 @@ instance.interceptors.response.use(
             router.push('/login')
         }
         if (err.response?.status === 500) {
-            ElMessage.error('当前无权限访问该接口');
+            //ElMessage.error('当前无权限访问该接口');
         }
         else {
             // 判断 err.response 是否存在，以避免访问 undefined 的属性

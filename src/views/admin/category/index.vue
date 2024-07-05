@@ -35,7 +35,7 @@
       <el-table-column label="分类别名" prop="categoryAlias"></el-table-column>
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
-          <el-button :icon="Edit" circle plain type="primary" @click="updateCategoryEcho(row)"></el-button>
+          <el-button :icon="Edit" circle plain type="info" @click="updateCategoryEcho(row)"></el-button>
           <el-button :icon="Delete" circle plain type="danger" @click="deleteCategory(row)"></el-button>
         </template>
       </el-table-column>
@@ -277,7 +277,6 @@ const batchDelete = async () => {
       }
   ).then(async () => {
     const ids = selectedCategories.value.map(item => item.id);
-    console.log("此时ids的值：" + ids);
     try {
       // 传输格式 {ids: ["7201362886097227776", "7201362874646777856", "7201362857680818176"]}
       const result = await articleCategoryBatchDeleteService({ids});
