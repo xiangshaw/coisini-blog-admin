@@ -33,6 +33,20 @@
       <el-table-column label="序号" width="100" type="index"></el-table-column>
       <el-table-column label="分类名称" prop="categoryName"></el-table-column>
       <el-table-column label="分类别名" prop="categoryAlias"></el-table-column>
+      <el-table-column label="是否推荐" prop="recommend">
+        <!--recommend 0不推荐 1推荐-->
+        <template #default="{ row }">
+          <el-tag v-if="row.recommend === '0'" type="warning">否</el-tag>
+          <el-tag v-else type="success">是</el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="首页固定" prop="recommend">
+        <!--recommend 0不可移除 1可移除-->
+        <template #default="{ row }">
+          <el-tag v-if="row.status === '0'" type="success">是</el-tag>
+          <el-tag v-else type="warning">否</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="操作" width="100">
         <template #default="{ row }">
           <el-button :icon="Edit" circle plain type="info" @click="updateCategoryEcho(row)"></el-button>
@@ -63,6 +77,14 @@
         </el-form-item>
         <el-form-item label="分类别名" prop="categoryAlias">
           <el-input v-model="categoryModel.categoryAlias" minlength="1" maxlength="15"></el-input>
+        </el-form-item>
+        <el-form-item label="是否推荐">
+          <el-radio v-model="categoryModel.recommend" label="0">否</el-radio>
+          <el-radio v-model="categoryModel.recommend" label="1">是</el-radio>
+        </el-form-item>
+        <el-form-item label="是否首页固定">
+          <el-radio v-model="categoryModel.status" label="1">否</el-radio>
+          <el-radio v-model="categoryModel.status" label="0">是</el-radio>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -190,6 +212,8 @@ const formRef = ref(null);
 const clearCategoryModel = () => {
   categoryModel.value.categoryName = ''
   categoryModel.value.categoryAlias = ''
+  categoryModel.value.recommend = '0'
+  categoryModel.value.status = '1'
   // 如果表单引用已定义，重置表单校验状态
   // 延迟重置表单校验状态
   setTimeout(() => {
@@ -229,7 +253,9 @@ const title = ref('')
 //添加分类数据模型
 const categoryModel = ref({
   categoryName: '',
-  categoryAlias: ''
+  categoryAlias: '',
+  recommend: '0',
+  status: '1'
 })
 
 //添加分类表单校验
@@ -249,6 +275,7 @@ const updateCategoryEcho = (row) => {
   // 将row中的数据赋值给categoryModel
   categoryModel.value.categoryName = row.categoryName
   categoryModel.value.categoryAlias = row.categoryAlias
+  categoryModel.value.recommend = row.recommend
   // 修改的时候必须传递分类的id，所以扩展一个id属性
   categoryModel.value.id = row.id
 }
@@ -258,7 +285,6 @@ const selectedCategories = ref([]);
 
 const handleSelectionChange = (selection) => {
   selectedCategories.value = selection;
-  console.log("多选框的值：" + JSON.stringify(selection));
 };
 
 // 批量删除分类
