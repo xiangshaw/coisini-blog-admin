@@ -46,7 +46,8 @@ const handleCommand = (command) => {
       });
     });
   } else {
-    router.push('/user/' + command);
+    //router.push('/user/' + command);
+    router.push(command);
   }
 }
 </script>
