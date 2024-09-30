@@ -363,7 +363,7 @@ const resetUserForm = () => {
 // 表单验证规则
 const userRules = {
   username: [{required: true, message: '请输入用户名称', trigger: 'blur'}],
-  nickName: [{required: true, message: '请输入用户编码', trigger: 'blur'}],
+  nickName: [{required: true, message: '请输入用户呢称', trigger: 'blur'}],
   password: [{required: true, message: '请输入用户密码', trigger: 'blur'}],
   description: [{required: true, message: '请输入用户描述', trigger: 'blur'}],
 };
@@ -406,7 +406,7 @@ const showAssignRole = async (row) => {
     // 显示分配角色对话框
     dialogRoleVisible.value = true;
   } catch (error) {
-    ElMessage.error('获取角色信息失败');
+   // ElMessage.error(`当前请求失败：${error.message || '获取角色信息失败'}`);
   }
 };
 

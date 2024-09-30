@@ -1,5 +1,5 @@
 <script setup>
-import {iconList,getIcon} from "@/utils/IconList";
+import {iconList, getIcon} from "@/utils/IconList";
 import avatar from '@/assets/default.png';
 // 动态生成 iconMap
 const iconMap = iconList.reduce((map, icon) => {
@@ -14,8 +14,8 @@ import MenuItem from '@/components/MenuItem.vue';
 
 const getUserInfo = async () => {
   const result = await userInfoService();
-  useUserInfoStore().setInfo(result.data);
-  useUserInfoStore().setUserMenu(result.data.userMenuList);
+    useUserInfoStore().setInfo(result.data);
+    useUserInfoStore().setUserMenu(result.data.userMenuList);
 }
 getUserInfo();
 
