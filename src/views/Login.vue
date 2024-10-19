@@ -99,7 +99,7 @@ const login = async () => {
   // 提示信息
   ElMessage.success(result.message ? result.message : '登录成功')
   // 设置token
-  tokenStore.setToken(result.data.token)
+  tokenStore.setToken(result.data)
 
   // 获取用户信息
   const userInfoResult = await userInfoService();

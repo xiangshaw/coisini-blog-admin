@@ -69,6 +69,11 @@ const handleCommand = (command) => {
           :default-active="$route.path"
           router
       >
+        <!--静态菜单项-->
+        <el-menu-item index="/dashboard/index">
+          <el-icon><DataAnalysis /></el-icon>
+          首页
+        </el-menu-item>
         <!--
         使用自定义的 MenuItem 组件来循环渲染用户菜单列表、
         使用菜单路径来确保唯一性、
