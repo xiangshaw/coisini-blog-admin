@@ -57,7 +57,7 @@ const handleCommand = (command) => {
     <!-- 左侧菜单 -->
     <el-aside width="200px">
       <!--LOGO-->
-      <div class="el-aside__logo"></div>
+      <div class="el-aside__logo" style="height: 80px"></div>
       <!--设置菜单项被激活时的文本颜色、
       菜单的背景色、
       菜单项的文本颜色、
@@ -104,9 +104,9 @@ const handleCommand = (command) => {
           <template #dropdown>
             <!--下拉菜单-->
             <el-dropdown-menu>
-              <el-dropdown-item command="UserInfo" :icon="getIcon('User')">基本资料</el-dropdown-item>
-              <el-dropdown-item command="UserAvatar" :icon="getIcon('Crop')">更换头像</el-dropdown-item>
-              <el-dropdown-item command="UserResetPassword" :icon="getIcon('EditPen')">重置密码</el-dropdown-item>
+              <el-dropdown-item command="/UserInfo" :icon="getIcon('User')">基本资料</el-dropdown-item>
+              <el-dropdown-item command="/UserAvatar" :icon="getIcon('Avatar')">更换头像</el-dropdown-item>
+              <el-dropdown-item command="/UserResetPassword" :icon="getIcon('EditPen')">重置密码</el-dropdown-item>
               <el-dropdown-item command="logout" :icon="getIcon('SwitchButton')">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>

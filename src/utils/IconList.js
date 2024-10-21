@@ -1,5 +1,6 @@
 // 图标映射
 import {
+  Avatar,
   CaretBottom, ChatDotSquare, ChatLineSquare,
   Check,
   Close,
@@ -7,7 +8,7 @@ import {
   Crop, DataAnalysis,
   Delete,
   Edit,
-  EditPen, Female, Files, Male,
+  EditPen, Female, Files, Iphone, Male,
   Management,
   Memo,
   Odometer,
@@ -52,6 +53,8 @@ export const iconList = [
   { name: 'ScaleToOriginal', component: ScaleToOriginal },
   { name: 'SetUp', component: SetUp },
   { name: 'Present', component: Present },
+  { name: 'Iphone', component: Iphone },
+  { name: 'Avatar', component: Avatar },
 ];
 // 获取图标组件的方法
 export const getIcon = (name) => {

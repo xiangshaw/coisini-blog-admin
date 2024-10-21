@@ -2,7 +2,7 @@
 import request from '@/utils/request'
 
 // 获取验证码接口函数
-export const getCodeService = (phone) => {
+export const getCodeService = () => {
     return request({
         url: '/api/v1/auth/captcha',
         method: 'get',
@@ -24,6 +24,41 @@ export const userLoginService = (loginData) => {
         url: '/api/v1/auth/authenticate',
         method: 'post',
         data: loginData
+    })
+}
+
+// 发送手机、邮箱验证码接口函数
+export const sendSmsCodeService = (sendSmsData) => {
+    const formData = new FormData();
+    // 将 sendSmsData 的每个属性添加到 FormData
+    Object.keys(sendSmsData).forEach(key => {
+        formData.append(key, sendSmsData[key]);
+    });
+    return request({
+        url: '/api/v1/auth/sendSms',
+        method: 'post',
+        data: formData,
+        headers: {
+            // 设置内容类型
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+}
+
+// 绑定手机号接口函数
+export const bindPhoneService = (bindPhoneData) => {
+    return request({
+        url: '/api/v1/user/bindPhone',
+        method: 'patch',
+        data: bindPhoneData
+    })
+}
+
+// 核查用户手机号
+export const checkPhoneService = (phone) => {
+    return request({
+        url: '/api/v1/user/checkPhone/${phone}',
+        method: 'get'
     })
 }
 
