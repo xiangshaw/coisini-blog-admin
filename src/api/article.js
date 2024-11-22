@@ -1,10 +1,17 @@
 // 导入请求工具类
 import request from '@/utils/request.js'
+import {
+    API_ARTICLE_ADD,
+    API_ARTICLE_CATEGORY,
+    API_ARTICLE_CATEGORY_ADD, API_ARTICLE_CATEGORY_BATCH_DELETE, API_ARTICLE_CATEGORY_DELETE,
+    API_ARTICLE_CATEGORY_LIST,
+    API_ARTICLE_CATEGORY_UPDATE, API_ARTICLE_DELETE, API_ARTICLE_LIST, API_ARTICLE_UPDATE
+} from "@/components/api";
 
 // 文章分类列表查询
 export const articleCategoryListService = (categorySearchObj) => {
     return request({
-        url: '/api/v1/category/list',
+        url: API_ARTICLE_CATEGORY_LIST,
         method: 'get',
         params: categorySearchObj
     })
@@ -13,7 +20,7 @@ export const articleCategoryListService = (categorySearchObj) => {
 // 获取文章分类
 export const articleCategoryGetService = () => {
     return request({
-        url: '/api/v1/category/articleList',
+        url: API_ARTICLE_CATEGORY,
         method: 'get',
     })
 }
@@ -21,7 +28,7 @@ export const articleCategoryGetService = () => {
 // 新增文章分类
 export const articleCategoryAddService = (categoryModel) => {
     return request({
-        url: '/api/v1/category/add',
+        url: API_ARTICLE_CATEGORY_ADD,
         method: 'post',
         data: categoryModel
     })
@@ -30,7 +37,7 @@ export const articleCategoryAddService = (categoryModel) => {
 // 修改文章分类
 export const articleCategoryUpdateService = (categoryModel) => {
     return request({
-        url: '/api/v1/category/update',
+        url: API_ARTICLE_CATEGORY_UPDATE,
         method: 'put',
         data: categoryModel
     })
@@ -39,7 +46,7 @@ export const articleCategoryUpdateService = (categoryModel) => {
 // 删除文章分类
 export const articleCategoryDeleteService = (id) => {
     return request({
-        url: '/api/v1/category/delete',
+        url: API_ARTICLE_CATEGORY_DELETE,
         method: 'delete',
         params: {
             id
@@ -50,7 +57,7 @@ export const articleCategoryDeleteService = (id) => {
 // 批量删除文章分类
 export const articleCategoryBatchDeleteService = (ids) => {
     return request({
-        url: '/api/v1/category/deleteByIds',
+        url: API_ARTICLE_CATEGORY_BATCH_DELETE,
         method: 'delete',
         data: ids
     })
@@ -59,7 +66,7 @@ export const articleCategoryBatchDeleteService = (ids) => {
 // 文章列表查询
 export const articleListService = (articleSearchObj) => {
     return request({
-        url: '/api/v1/article/list',
+        url: API_ARTICLE_LIST,
         method: 'get',
         params: articleSearchObj
     })
@@ -68,7 +75,7 @@ export const articleListService = (articleSearchObj) => {
 // 添加文章
 export const articleAddService = (articleModel) => {
     return request({
-        url: '/api/v1/article/add',
+        url: API_ARTICLE_ADD,
         method: 'post',
         data: articleModel
     })
@@ -78,7 +85,7 @@ export const articleAddService = (articleModel) => {
 // 修改文章
 export const articleUpdateService = (articleModel) => {
     return request({
-        url: '/api/v1/article/update',
+        url: API_ARTICLE_UPDATE,
         method: 'put',
         data: articleModel
     })
@@ -87,7 +94,7 @@ export const articleUpdateService = (articleModel) => {
 // 删除文章
 export const articleDeleteService = (articleId) => {
     return request({
-        url: '/api/v1/article/delete',
+        url: API_ARTICLE_DELETE,
         method: 'delete',
         params: {
             articleId

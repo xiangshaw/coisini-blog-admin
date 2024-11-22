@@ -2,13 +2,21 @@
 菜单管理相关的API请求函数
 */
 import request from '@/utils/request'
+import {
+    API_MENU_ADD,
+    API_MENU_DELETE,
+    API_MENU_LIST,
+    API_MENU_ROLE_ASSIGN,
+    API_MENU_ROLE_LIST,
+    API_MENU_UPDATE, API_MENU_UPDATE_STATUS
+} from "@/components/api";
 
 /**
  * 获取权限(菜单/功能)列表
  */
 export const findNodes = () => {
     return request({
-        url: "/api/v1/menu/findNodes",
+        url: API_MENU_LIST,
         method: 'get'
     })
 }
@@ -18,7 +26,7 @@ export const findNodes = () => {
  */
 export const saveMenu = (menu) => {
     return request({
-        url: "/api/v1/menu/save",
+        url: API_MENU_ADD,
         method: 'post',
         data: menu
     })
@@ -29,7 +37,7 @@ export const saveMenu = (menu) => {
  */
 export const updateById = (menu) => {
     return request({
-        url: "/api/v1/menu/update",
+        url: API_MENU_UPDATE,
         method: 'put',
         data: menu
     })
@@ -40,7 +48,7 @@ export const updateById = (menu) => {
  */
 export const removeById = (id) => {
     return request({
-        url: `/api/v1/menu/remove/${id}`,
+        url: API_MENU_DELETE + '/' + id,
         method: 'delete'
     })
 }
@@ -50,7 +58,7 @@ export const removeById = (id) => {
  */
 export const toAssign = (roleId) => {
     return request({
-        url: `/api/v1/menu/toAssign/${roleId}`,
+        url: API_MENU_ROLE_LIST + '/' + roleId,
         method: 'get'
     })
 }
@@ -60,7 +68,7 @@ export const toAssign = (roleId) => {
  */
 export const doAssign = (assginMenuVo) => {
     return request({
-        url: `/api/v1/menu/doAssign`,
+        url: API_MENU_ROLE_ASSIGN,
         method: 'post',
         data: assginMenuVo
     })
@@ -71,7 +79,7 @@ export const doAssign = (assginMenuVo) => {
  */
 export const updateStatus = (id, status) => {
     return request({
-        url: `/api/v1/menu/updateStatus/${id}/${status}`,
+        url: API_MENU_UPDATE_STATUS + '/' + id + '/' + status,
         method: 'get'
     })
 }

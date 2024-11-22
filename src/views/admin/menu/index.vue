@@ -86,21 +86,50 @@
           <el-input v-model="menu.name"/>
         </el-form-item>
         <el-form-item v-if="menu.type !== 2" label="图标" prop="icon">
-          <el-select v-model="menu.icon" clearable placeholder="请选择图标" collapse-tags popper-append-to-body>
-            <el-option
-                v-for="item in iconList"
-                :key="item.name"
-                :label="item.name"
-                :value="item.name"
-            >
-              <template #default="{ option }">
-                <component :is="item.component" class="icon-small" style="margin-right: 5px;"></component>
-                <span>{{ item.name }}</span>
-              </template>
-            </el-option>
-            <!-- 在已选择框中显示图标预览 -->
+          <el-select
+              v-model="menu.icon"
+              clearable
+              placeholder="请选择图标"
+              collapse-tags
+              popper-append-to-body>
+            <!-- 图标网格布局 -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px;">
+              <el-option
+                  v-for="item in iconList"
+                  :key="item.name"
+                  :label="item.name"
+                  :value="item.name">
+                <template #default>
+                  <div style="display: flex; align-items: center; white-space: nowrap; gap: 8px;">
+                    <!-- 图标容器 -->
+                    <div style="
+                        width: 30px;
+                        height: 3px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 4px;">
+                      <component
+                          :is="item.component"
+                          class="icon-small"
+                          style="font-size: 20px;"/>
+                    </div>
+                    <!-- 图标名称 -->
+                    <span style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; display: inline-block;">
+                      {{ item.name }}
+                    </span>
+                  </div>
+                </template>
+              </el-option>
+            </div>
+            <!-- 已选择项的预览 -->
             <template #prefix>
-              <component v-if="menu.icon" :is="getIconComponent(menu.icon)" class="icon-small"></component>
+              <component
+                  v-if="menu.icon"
+                  :is="getIcon(menu.icon)"
+                  class="icon-small"
+                  style="margin-right: 5px; font-size: 20px;"
+              />
             </template>
           </el-select>
         </el-form-item>
@@ -313,6 +342,7 @@ onMounted(getMenuListData);
   padding: 6px 12px;
   background: linear-gradient(90deg, rgb(247, 114, 52), rgb(245, 49, 157));
 }
+
 /*提示框箭头颜色*/
 .el-popper.is-customized .el-popper__arrow::before {
   background: linear-gradient(45deg, #14C9C9, #722ED1);

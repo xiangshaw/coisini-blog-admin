@@ -2,13 +2,19 @@
  * 操作日志管理相关的API请求函数
  */
 import request from '@/utils/request'
+import {
+    API_OPER_LOG_BATCH_DELETE,
+    API_OPER_LOG_DELETE,
+    API_OPER_LOG_GET_BY_ID,
+    API_OPER_LOG_LIST
+} from "@/components/api";
 
 /**
  * 获取操作日志列表
  */
 export const getOperLogList = (operLogSearchObj) => {
     return request({
-        url: "/api/v1/operLog/list",
+        url: API_OPER_LOG_LIST,
         method: 'get',
         params: operLogSearchObj
     })
@@ -19,7 +25,7 @@ export const getOperLogList = (operLogSearchObj) => {
  */
 export const deleteOperLog = (id) => {
     return request({
-        url: "/api/v1/operLog/remove/" + id,
+        url: API_OPER_LOG_DELETE + '/' + id,
         method: 'delete'
     })
 }
@@ -29,7 +35,7 @@ export const deleteOperLog = (id) => {
  */
 export const batchDeleteOperLog = (ids) => {
     return request({
-        url: "/api/v1/operLog/batchRemove",
+        url: API_OPER_LOG_BATCH_DELETE,
         method: 'delete',
         data: ids
     })
@@ -40,7 +46,7 @@ export const batchDeleteOperLog = (ids) => {
  */
 export const getOperLogById = (id) => {
     return request({
-        url: "/api/v1/operLog/get/" + id,
+        url: API_OPER_LOG_GET_BY_ID + '/' + id,
         method: 'get'
     })
 }

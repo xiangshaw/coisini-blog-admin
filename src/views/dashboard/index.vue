@@ -1,8 +1,6 @@
 <script setup>
 
-import {useTokenStore} from "@/stores/token";
 import {useUserInfoStore} from "@/stores/userInfo";
-import {User} from "@element-plus/icons-vue";
 </script>
 
 <template>
@@ -15,7 +13,7 @@ import {User} from "@element-plus/icons-vue";
         <div style="display: flex; flex-direction: column;">
           <span style="align-self: flex-start;">
             {{ useUserInfoStore().info.nickName }}
-          探索历程：<strong>{{ useUserInfoStore().info.period }}</strong>
+          探索历程：<strong>{{ useUserInfoStore().info.period }}</strong>天
           </span>
           <div style="text-align: left;">
             <span><strong>{{ useUserInfoStore().info.visitCount }}</strong> 总访问量</span>

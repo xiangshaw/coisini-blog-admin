@@ -7,7 +7,7 @@
           <!-- 搜索表单 -->
           <el-form inline>
             <el-col>
-              <el-form-item label="用户名称：">
+              <el-form-item label="关键字：">
                 <el-input
                     v-model="userSearchObj.keyword"
                     :prefix-icon="Search"

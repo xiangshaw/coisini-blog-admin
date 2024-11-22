@@ -58,7 +58,7 @@
         </template>
       </el-table-column>
       <el-table-column label="请求方式" prop="requestMethod"></el-table-column>
-      <el-table-column label="操作类别" prop="operatorType">
+      <el-table-column label="操作类别" prop="operatorType" width="95">
         <template #default="{ row }">
           <el-tag :type="getOperatorTypeTagType(row.operatorType)">
             {{ getOperatorTypeLabel(row.operatorType) }}
@@ -66,8 +66,8 @@
         </template>
       </el-table-column>
       <el-table-column label="操作人员" prop="operName"></el-table-column>
-      <el-table-column label="请求URL" prop="operUrl"></el-table-column>
-      <el-table-column label="返回参数" prop="jsonResult"></el-table-column>
+      <el-table-column label="请求URL" prop="operUrl" show-overflow-tooltip></el-table-column>
+      <el-table-column label="返回参数" prop="jsonResult" show-overflow-tooltip></el-table-column>
       <!--   0成功 1失败   -->
       <el-table-column label="操作状态" prop="status">
         <template #default="{ row }">
@@ -75,7 +75,7 @@
           <el-tag v-else type="danger">失败</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="错误消息" prop="errorMsg"></el-table-column>
+      <el-table-column label="错误消息" prop="errorMsg" show-overflow-tooltip></el-table-column>
       <el-table-column label="时间" prop="createTime" sortable width="115"></el-table-column>
       <el-table-column label="操作" fixed="right" align="center" width="100">
         <template #default="{ row }">

@@ -1,63 +1,14 @@
-// 图标映射
-import {
-  Avatar,
-  CaretBottom, ChatDotSquare, ChatLineSquare,
-  Check,
-  Close,
-  Compass, Connection,
-  Crop, DataAnalysis,
-  Delete,
-  Edit,
-  EditPen, Female, Files, Iphone, Male,
-  Management,
-  Memo,
-  Odometer,
-  PieChart,
-  Plus, Position,
-  Postcard, Present,
-  Promotion, ScaleToOriginal, Service, SetUp, Star,
-  SwitchButton,
-  User,
-  UserFilled, View
-} from '@element-plus/icons-vue';
-export const iconList = [
-  { name: 'Close', component: Close },
-  { name: 'Check', component: Check },
-  { name: 'Delete', component: Delete },
-  { name: 'Edit', component: Edit },
-  { name: 'Plus', component: Plus },
-  { name: 'Management', component: Management },
-  { name: 'Promotion', component: Promotion },
-  { name: 'UserFilled', component: UserFilled },
-  { name: 'User', component: User },
-  { name: 'Crop', component: Crop },
-  { name: 'EditPen', component: EditPen },
-  { name: 'SwitchButton', component: SwitchButton },
-  { name: 'CaretBottom', component: CaretBottom },
-  { name: 'Postcard', component: Postcard },
-  { name: 'Memo', component: Memo },
-  { name: 'Compass', component: Compass },
-  { name: 'Odometer', component: Odometer },
-  { name: 'PieChart', component: PieChart },
-  { name: 'ChatLineSquare', component: ChatLineSquare },
-  { name: 'ChatDotSquare', component: ChatDotSquare },
-  { name: 'View', component: View },
-  { name: 'Position', component: Position },
-  { name: 'Connection', component: Connection },
-  { name: 'Service', component: Service },
-  { name: 'Female', component: Female },
-  { name: 'Male', component: Male },
-  { name: 'Star', component: Star },
-  { name: 'DataAnalysis', component: DataAnalysis },
-  { name: 'Files', component: Files },
-  { name: 'ScaleToOriginal', component: ScaleToOriginal },
-  { name: 'SetUp', component: SetUp },
-  { name: 'Present', component: Present },
-  { name: 'Iphone', component: Iphone },
-  { name: 'Avatar', component: Avatar },
-];
+// 导入所有图标
+import * as Icons from '@element-plus/icons-vue';
+
+// 动态生成图标列表
+export const iconList = Object.keys(Icons).map((key) => ({
+  name: key,
+  component: Icons[key],
+}));
+
 // 获取图标组件的方法
 export const getIcon = (name) => {
-  const icon = iconList.find(icon => icon.name === name);
+  const icon = iconList.find((icon) => icon.name === name);
   return icon ? icon.component : null;
 };

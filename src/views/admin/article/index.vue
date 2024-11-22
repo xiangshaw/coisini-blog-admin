@@ -64,6 +64,18 @@
         :data="articles" style="width: 100%">
       <el-table-column label="文章标题" width="150" prop="title"></el-table-column>
       <el-table-column label="分类" prop="categoryId"></el-table-column>
+      <el-table-column label="封面">
+        <template #default="scope">
+          <div class="demo-image__preview">
+            <el-image
+                style="width: 60px; height: 60px;"
+                :src="host + scope.row.coverImg"
+                :preview-src-list="[host + scope.row.coverImg]"
+                preview-teleported
+            />
+          </div>
+        </template>
+      </el-table-column>
       <el-table-column label="标签" prop="tagName">
         <template #default="{ row }">
           <template v-for="(tagName, index) in row.tagName" :key="index">
@@ -476,6 +488,9 @@ const articleCategory = ref([]);
 
 // 文章列表数据模型
 const articles = ref([]);
+
+// 图地址
+const host = '';
 
 // 初始化搜索条件
 const articleSearchObj = ref({

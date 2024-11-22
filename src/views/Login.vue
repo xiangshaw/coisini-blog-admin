@@ -93,24 +93,37 @@ const tokenStore = useTokenStore();
 const userInfoStore = useUserInfoStore();
 // 登录功能
 const router = useRouter();
-const login = async () => {
-  // 登录
-  let result = await userLoginService(registerData.value)
-  // 提示信息
-  ElMessage.success(result.message ? result.message : '登录成功')
-  // 设置token
-  tokenStore.setToken(result.data)
 
-  // 获取用户信息
-  const userInfoResult = await userInfoService();
-  userInfoStore.setInfo(userInfoResult.data);
-  userInfoStore.setUserButton(userInfoResult.data.userButtonList);
-  // 获取菜单
-  const userMenuList = userInfoResult.data.userMenuList;
-  // 存储用户菜单
-  userInfoStore.setUserMenu(userMenuList)
-  // 跳转首页
-  await router.push('/')
+// 定义 loading 状态
+const Loading = ref(false)
+
+const login = async () => {
+  // 开启loading加载
+  Loading.value = true
+  try {
+    // 登录
+    let result = await userLoginService(registerData.value)
+    // 提示信息
+    ElMessage.success(result.message ? result.message : '登录成功')
+    // 设置token
+    tokenStore.setToken(result.data)
+
+    // 获取用户信息
+    const userInfoResult = await userInfoService();
+    userInfoStore.setInfo(userInfoResult.data);
+    userInfoStore.setUserButton(userInfoResult.data.userButtonList);
+    // 获取菜单
+    const userMenuList = userInfoResult.data.userMenuList;
+    // 存储用户菜单
+    userInfoStore.setUserMenu(userMenuList)
+    // 跳转首页
+    await router.push('/')
+  }catch (error){
+    console.log("登录失败，请重试！")
+  }finally {
+    // 关闭loading加载
+    Loading.value = false
+  }
 }
 
 // 清空表单
@@ -163,7 +176,7 @@ const clearData = () => {
         </el-form-item>
       </el-form>
       <!-- 登录表单 -->
-      <el-form ref="form" size="large" autocomplete="off" v-else :model="registerData" :rules="rules">
+      <el-form ref="form" size="large" autocomplete="off" v-else :model="registerData" :rules="rules" @keyup.enter.native="login">
         <el-form-item>
           <h1>登录</h1>
         </el-form-item>
@@ -189,7 +202,7 @@ const clearData = () => {
         </el-form-item>
         <!-- 登录按钮 -->
         <el-form-item>
-          <el-button class="button" type="primary" @click="login">登录</el-button>
+          <el-button class="button" :loading="Loading" type="primary" @click="login">登录</el-button>
         </el-form-item>
         <el-form-item class="flex">
           <el-link type="info" :underline="false" @click="switchLoginRegister = true;clearData()">注册 →</el-link>

@@ -1,10 +1,24 @@
 // 导入请求工具
 import request from '@/utils/request'
+import {
+    API_AUTH_CAPTCHA,
+    API_AUTH_LOGIN,
+    API_AUTH_REGISTER,
+    API_AUTH_SMS, API_USER_ADD, API_USER_ASSIGN_ROLES,
+    API_USER_AVATAR, API_USER_BATCH_DELETE,
+    API_USER_BIND_PHONE,
+    API_USER_CHECK_PHONE, API_USER_DELETE, API_USER_EDIT,
+    API_USER_INFO,
+    API_USER_LIST, API_USER_ROLES,
+    API_USER_UPDATE,
+    API_USER_UPDATE_PASSWORD,
+    API_USER_UPDATE_STATUS
+} from "@/components/api";
 
 // 获取验证码接口函数
 export const getCodeService = () => {
     return request({
-        url: '/api/v1/auth/captcha',
+        url: API_AUTH_CAPTCHA,
         method: 'get',
     })
 }
@@ -12,7 +26,7 @@ export const getCodeService = () => {
 // 注册接口函数
 export const userRegisterService = (registerData) => {
     return request({
-        url: '/api/v1/auth/register',
+        url: API_AUTH_REGISTER,
         method: 'post',
         data: registerData
     })
@@ -21,7 +35,7 @@ export const userRegisterService = (registerData) => {
 // 登录接口函数
 export const userLoginService = (loginData) => {
     return request({
-        url: '/api/v1/auth/authenticate',
+        url: API_AUTH_LOGIN,
         method: 'post',
         data: loginData
     })
@@ -35,7 +49,7 @@ export const sendSmsCodeService = (sendSmsData) => {
         formData.append(key, sendSmsData[key]);
     });
     return request({
-        url: '/api/v1/auth/sendSms',
+        url: API_AUTH_SMS,
         method: 'post',
         data: formData,
         headers: {
@@ -48,7 +62,7 @@ export const sendSmsCodeService = (sendSmsData) => {
 // 绑定手机号接口函数
 export const bindPhoneService = (bindPhoneData) => {
     return request({
-        url: '/api/v1/user/bindPhone',
+        url: API_USER_BIND_PHONE,
         method: 'patch',
         data: bindPhoneData
     })
@@ -57,7 +71,7 @@ export const bindPhoneService = (bindPhoneData) => {
 // 核查用户手机号
 export const checkPhoneService = (phone) => {
     return request({
-        url: '/api/v1/user/checkPhone/${phone}',
+        url: API_USER_CHECK_PHONE + '/' + phone,
         method: 'get'
     })
 }
@@ -65,7 +79,7 @@ export const checkPhoneService = (phone) => {
 // 获取用户信息接口函数
 export const userInfoService = () => {
     return request({
-        url: '/api/v1/user/info',
+        url: API_USER_INFO,
         method: 'get',
     })
 }
@@ -73,7 +87,7 @@ export const userInfoService = () => {
 // 修改用户信息接口函数
 export const userInfoUpdateService = (updateData) => {
     return request({
-        url: '/api/v1/user/update',
+        url: API_USER_UPDATE,
         method: 'put',
         data: updateData
     })
@@ -82,7 +96,7 @@ export const userInfoUpdateService = (updateData) => {
 // 用户修改头像接口函数
 export const userAvatarUpdateService = (avatar) => {
     return request({
-        url: '/api/v1/user/avatar',
+        url: API_USER_AVATAR,
         method: 'patch',
         data: avatar
     })
@@ -91,7 +105,7 @@ export const userAvatarUpdateService = (avatar) => {
 // 用户修改密码接口函数
 export const userPasswordUpdateService = (password) => {
     return request({
-        url: '/api/v1/user/password',
+        url: API_USER_UPDATE_PASSWORD,
         method: 'patch',
         data: password
     })
@@ -100,7 +114,7 @@ export const userPasswordUpdateService = (password) => {
 // 获取用户分页列表
 export const getUserList = (userSearchObj) => {
     return request({
-        url: `/api/v1/user/list`,
+        url: API_USER_LIST,
         method: 'get',
         params: userSearchObj
     })
@@ -109,7 +123,7 @@ export const getUserList = (userSearchObj) => {
 // 修改用户状态
 export const userStatusUpdateService = (userId, status) => {
     return request({
-        url: `/api/v1/user/status/${userId}/${status}`,
+        url: API_USER_UPDATE_STATUS + '/' + userId + '/' + status,
         method: 'patch'
     })
 }
@@ -117,7 +131,7 @@ export const userStatusUpdateService = (userId, status) => {
 // 删除用户
 export const userDeleteService = (userId) => {
     return request({
-        url: `/api/v1/user/remove/${userId}`,
+        url: API_USER_DELETE + '/' + userId,
         method: 'delete'
     })
 }
@@ -125,7 +139,7 @@ export const userDeleteService = (userId) => {
 // 批量删除用户
 export const userBatchDeleteService = (userIdList) => {
     return request({
-        url: `/api/v1/user/batchRemove`,
+        url: API_USER_BATCH_DELETE,
         method: 'delete',
         data: userIdList
     })
@@ -134,7 +148,7 @@ export const userBatchDeleteService = (userIdList) => {
 // 添加用户
 export const userAddService = (userData) => {
     return request({
-        url: `/api/v1/user/add`,
+        url: API_USER_ADD,
         method: 'post',
         data: userData
     })
@@ -143,7 +157,7 @@ export const userAddService = (userData) => {
 // 修改用户
 export const userUpdatesService = (userData) => {
     return request({
-        url: `/api/v1/user/updates`,
+        url: API_USER_EDIT,
         method: 'put',
         data: userData
     })
@@ -152,7 +166,7 @@ export const userUpdatesService = (userData) => {
 // 根据用户id查询用户已分配的角色
 export const getUserRoleService = (userId) => {
     return request({
-        url: `/api/v1/user/toAssign/${userId}`,
+        url: API_USER_ROLES + '/' + userId,
         method: 'get'
     })
 }
@@ -160,7 +174,7 @@ export const getUserRoleService = (userId) => {
 // 给用户分配角色
 export const userAssignRoleService = (assignRoleVo) => {
     return request({
-        url: `/api/v1/user/doAssign`,
+        url: API_USER_ASSIGN_ROLES,
         method: 'post',
         data: assignRoleVo
     })
